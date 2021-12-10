@@ -1,0 +1,89 @@
+
+{% extends 'full_base.html' %}
+
+{% block header_fullbase %}
+
+{% block header_enrichmentbase %}
+    
+{% endblock %}
+
+
+{% endblock %}
+
+{% block content_fullbase %}
+
+<ul class="breadcrumb">
+    <li>
+        {% if 0 == step %}
+            Upload File(s)
+        {% elif 0 < step %}
+            <a href="../enrichment/upload_files"> Upload File(s)</a>
+        {% else %}
+            <a class="isDisabled" href="#"> Upload File(s)</a>
+        {% endif %}
+    </li>
+    <li>
+        {% if 1 == step %}
+        Choose File and Options
+        {% elif 1 < step %}
+            <a href="../enrichment/options"> Choose File and Options</a>
+        {% else %}
+            <a class="isDisabled" href="#"> Choose File and Options</a>
+        {% endif %}
+    </li>
+    <li>
+        {% if 2 == step %}
+        Extraction Results
+        {% elif 2 < step %}
+            <a href="../enrichment/edit_document"> Edit Extraction Results</a>
+        {% else %}
+            <a class="isDisabled" href="#"> Edit Extraction Results</a>
+        {% endif %}
+    </li>
+    <li>
+        {% if 3 == step %}
+        Edit Annotation Results
+        {% elif 3 < step %}
+            <a href="../enrichment/edit_annotations"> Edit Annotation Results</a>
+        {% else %}
+            <a class="isDisabled" href="#"> Edit Annotation Results</a>
+        {% endif %}
+    </li>
+    <li>
+        {% if 4 == step %}
+       Analysis
+        {% elif 4 < step %}
+            <a href="#">Analysis</a>
+        {% else %}
+            <a class="isDisabled" href="#">Analysis</a>
+        {% endif %}
+    </li>
+
+    <li>
+        {% if 5 == step %}
+       Download
+        {% elif 5 < step %}
+            <a href="#">Download</a>
+        {% else %}
+            <a class="isDisabled" href="#">Download</a>
+        {% endif %}
+    </li>
+
+</ul> 
+
+{% block content_enrichmentbase %}
+    
+{% endblock %}
+
+
+{% endblock %}
+
+{% block javascript_fullbase %}
+
+{% block javascript_enrichmentbase %}
+    
+{% endblock %}
+
+{% endblock %}
+
+                

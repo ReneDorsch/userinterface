@@ -1,0 +1,102 @@
+
+{% extends 'base.html' %}
+
+{% block header %}
+<script src="../static/assets/js/jquery.min.js"></script>
+    {% block header_fullbase %}
+        
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+
+<div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    <p></p>
+    <a class="outer-a-sidebar" href="../">Start Here</a>
+    <button class="dropdown-btn">Semantic Enrichment
+        <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container"> 
+        <a href="../enrichment/upload_files">Upload File(s)</a>
+        <a href="#">Extract Data</a>
+        <a href="../enrichment/edit_document">Edit Extracted Data</a>
+        <a href="#">Annotate Data</a>
+        <a href="../enrichment/edit_annotations">Edit Annotated Data</a>
+        <a href="#">Analyse Data</a>
+        <a href="#">Edit Analysed Data</a>
+    </div>
+    <button class="dropdown-btn">Analysis
+        <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container"> 
+        <a href="../analysis/annotation_graph">Analyse annotated Data</a>
+        <a href="../analysis/context_graph">Analyse analysed Data</a>
+        <a href="">Query Data</a>
+        <a href="">Download Data</a>
+    </div>
+    <button class="dropdown-btn">Advanced
+        <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container"> 
+        <a href="../advanced/named_entity_model">Update Named Entity Model</a>
+        <a href="../advanced/question_answering_model">Update Question Answering Model</a>
+        <a href="../advanced/questiontemplate">Edit Questiontemplates</a>
+    </div>
+    <a class="outer-a-sidebar" href="../about">About</a>
+</div>
+  
+<div id="main">
+    <button class="openbtn" onclick="openNav()">☰ Open Sidebar</button>  
+
+
+    {% block content_fullbase %}
+    
+    {% endblock %}
+
+   
+</div>
+
+
+
+{% endblock %}
+
+<script>
+    {% block javascript %}
+
+        function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+        }
+        
+        function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+        document.getElementById("main").style.marginLeft= "0";
+        }
+
+        var dropdown = document.getElementsByClassName("dropdown-btn");
+        var i;
+
+        for (i = 0; i < dropdown.length; i++) {
+        dropdown[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var dropdownContent = this.nextElementSibling;
+            if (dropdownContent.style.display === "block") {
+            dropdownContent.style.display = "none";
+            } else {
+            dropdownContent.style.display = "block";
+            }
+        });
+        };
+
+        {% if active == True %}
+            openNav();
+        {% endif %}
+
+        {% block javascript_fullbase %}
+
+        {% endblock %}
+
+    {% endblock %}
+</script>
+

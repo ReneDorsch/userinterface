@@ -1,0 +1,111 @@
+{% extends 'enrichment_base.html' %}
+
+{% block header_enrichmentbase %}
+
+{% endblock %}
+
+{% block content_enrichmentbase %}
+<div>
+    <p style="padding-bottom: 30px;">
+            <input type="button" onclick="location.href='../enrichment/options'" value="Choose File and Options" style="float: right;">
+    </p>
+</div>
+<div class="row">
+    <div class="col">
+        <div id="dropzone" class="dropzone" style="margin: auto;">
+            <p >Drop your PDF-Documents here.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript_enrichmentbase%}
+$(document).ready(function(){
+
+    /* $("form").on('change', function(event){
+         event.preventDefault();
+ 
+         var formData = new FormData($('form')[0]);
+ 
+         $.ajax({
+             type: 'POST',
+             url: '/upload_pdf',
+             data : formData,
+             processData: false,
+             contentType: false,//'multipart/form-data',
+             success: function(){
+                 alert('FIle uploaded.')
+             }
+              });
+     });
+     */
+ 
+     $("#dropzone").on('dragover', function(event){
+         event.preventDefault();
+         $("#dropzone").addClass("dragover");
+     });
+ 
+     $("#dropzone").on('dragleave', function(event){
+         event.preventDefault();
+         $("#dropzone").removeClass("dragover");
+     });
+ 
+ 
+     $("#dropzone").on('drop', function(event){
+         // This function uploads a PDF to the server that was dropped over an
+         // element of the class dropzone
+ 
+         // Deactive default behaviour
+         event.preventDefault();
+         $("#dropzone").removeClass("dragover");
+ 
+ 
+         var files = event.originalEvent.dataTransfer.files
+         var formData = new FormData();
+        
+ 
+        // Check that the files are pdf
+         var test_answers = [];
+         const checking_rule = (element) => element === false;
+         for(x = 0; x < files.length; x = x + 1){
+             console.log(files[x].type)
+             if (files[x].type === 'application/pdf'){
+                 test_answers.push(true)
+             }
+             else {
+                 test_answers.push(false)
+             }
+            
+         };
+ 
+         if (test_answers.some(checking_rule)) {
+             alert('The documents could not be uploaded. Make sure these are PDF-Documents.')
+ 
+ 
+         } else {
+             // Create a multi-part-FormData Object
+             // so more as one item could be uploaded
+             for(x = 0; x < files.length; x = x + 1){
+                 formData.append('file[]', files[x]);
+             };
+         
+             // Call the server asynchronlly
+             $.ajax({
+                 type: 'POST',
+                 url: '/enrichment/upload_file',
+                 data : formData,
+                 processData: false,
+                 contentType: false,
+                 success: function(){
+                     alert('File(s) uploaded.')
+                  }
+                 });
+             };
+ //
+        
+     });
+ 
+ 
+    // $("#dropzone").removeClass("dragover");
+ });
+{% endblock %}

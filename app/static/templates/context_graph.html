@@ -1,0 +1,101 @@
+
+{% extends 'full_base.html' %}
+
+{% block header_fullbase %}
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+{% endblock %}
+
+
+{% block content_fullbase %}
+
+
+<div class="section">
+    <h1>Analyse contexts of documents</h1>
+    <p>Some text about who we are and what we do.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iure soluta tempora sunt quas velit molestias suscipit nemo corrupti tenetur culpa deleniti nesciunt assumenda quia quae architecto, eius odit beatae maxime?</p>
+</div>
+  
+
+<div id="site">
+    <div id="mynetwork" style="height: 1000px; background-color: #ffffff"></div>
+</div>
+{% endblock %}
+
+{% block javascript_fullbase %}
+
+    // create an array with nodes
+    var nodes = new vis.DataSet([
+    { id: 1, label: "Node 1" },
+    { id: 2, label: "Node 2" },
+    { id: 3, label: "Node 3" },
+    { id: 4, label: "Node 4" },
+    { id: 5, label: "Node 5" },
+    { id: 6, label: "Node 6" },
+    { id: 7, label: "Node 7" },
+    { id: 8, label: "Node 8" },
+    { id: 9, label: "Node 9" },
+    { id: 10, label: "Node 10" },
+    ]);
+
+    // create an array with edges
+    var edges = new vis.DataSet([
+    { from: 1, to: 2 },
+    { from: 1, to: 3 },
+    { from: 10, to: 4 },
+    { from: 2, to: 5 },
+    { from: 6, to: 2 },
+    { from: 7, to: 5 },
+    { from: 8, to: 6 },
+    { from: 9, to: 7 },
+    { from: 10, to: 9 },
+    ]);
+
+
+    // create a network
+    var container = document.getElementById("mynetwork");
+    var data = {
+    nodes: nodes,
+    edges: edges,
+    };
+    var options = {
+    layout: {
+            randomSeed: 9
+    },
+    physics: {
+            adaptiveTimestep: false,
+            barnesHut: {
+        theta: 0.5,
+        gravitationalConstant: -2000,
+        centralGravity: 0.3,
+        springLength: 395,
+        springConstant: 0.005,
+        damping: 0.1,
+        avoidOverlap: 0
+        }
+    },
+    nodes: {
+
+            size: 30,
+            font: {
+                size: 32,
+                color: "#000000",
+            },
+            borderWidth: 2,
+            },
+            edges: {
+            width: 2,
+            },
+    };
+
+
+
+
+    var dot = `{{graph|safe}}`;
+    var data = vis.parseDOTNetwork(dot);
+    var network = new vis.Network(container, data, options);
+
+
+
+{% endblock %}

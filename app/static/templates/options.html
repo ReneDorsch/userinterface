@@ -1,0 +1,84 @@
+{% extends 'enrichment_base.html' %}
+
+{% block header_enrichmentbase %}
+
+{% endblock %}
+
+{% block content_enrichmentbase %}
+
+<div>
+    <p style="padding-bottom: 30px;">
+        <input type="button" onclick="call('../enrichment/start_analysis')" value="Start Analysis" style="float: right;">
+        <input type="button" onclick="location.href='../enrichment/upload_files'" value="Upload File" style="float: left;">
+    </p>
+</div>
+
+// 
+
+<div>
+    <p>
+    <h2>File Selection</h2>
+    <p>Please select a file that should be analysed by this tool. </p>
+    <fieldset>
+        <select class="custom-select" id="file_field">
+            <optgroup label="Select here...">
+                {% for document in documents %}
+                    <option value="{{document.id}}">{{document.file_name}}</option>
+                {% endfor %}
+            </optgroup>
+        </select>
+    </fieldset>
+    </p>
+</div>
+<div>
+    <h2>Mode</h2>
+    <p>Please choose a mode of analysing. </p>
+    <fieldset id="mode_field">
+        <legend>Please select one of the following</legend>
+        <div>
+            <input class="mode" type="radio" name="mode" id="fast" value="fast" checked />
+            <label for="fast">Fast (Automatic)</label>
+        </div>
+        <div>
+            <input class="mode" type="radio" name="mode" id="slow" value="slow"/>
+            <label for="slow">Higher Quality (Semi-Automatic)</label>
+        </div>
+    </fieldset>
+</div>
+
+<script>
+
+
+    
+    function call(site) {
+
+        // Get the relevant attributes. 
+        var document_id = $('#file_field :selected');
+        var option_mode = $('.mode:checked');
+                                //.text();
+                                
+        // Call the backend and go to the next site.
+
+        $.post({
+            url: '../enrichment/options_result',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                                    'id': document_id.val(),
+                                    "mode": option_mode.val()
+                                }),
+            dataType: 'json',
+            success: function (data){
+                console.log(data)
+
+        }
+    });
+
+        
+    }
+    </script>
+{% endblock %}
+
+
+{% block javascript_enrichmentbase %}
+    
+{% endblock %}

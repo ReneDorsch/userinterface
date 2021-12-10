@@ -1,0 +1,171 @@
+
+
+NAMESPACES: 
+tribAIn: <http://ktmfk.de/ontology/tribAIn/> .
+triboHypo: <http://ktmfk.de/ontology/triboHypo/> .
+rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+
+IF META_DATA/GOAL:
+<HYPOTHESIS> triboHypo:hasAssumption <ASSUMPTION>.
+<ASSUMPTION> triboHypo:varies #ANSWER.
+
+IF META_DATA/GOAL AND FRICTION_BEHAVIOUR/COEFFICIENT_OF_FRICTION:
+<HYPOTHESIS> triboHypo:hasConclusion <CONCLUSION>.
+<CONCLUSION> triboHypo:varies tribAIn:COF.
+
+IF META_DATA/GOAL AND FRICTION_BEHAVIOUR/WEAR_RATE:
+<HYPOTHESIS> triboHypo:hasConclusion <CONCLUSION>.
+<CONCLUSION> triboHypo:varies tribAIn:Wear.
+
+IF KINETICAL_PARAMETER OR OPERATIONAL_PARAMETER:
+<HYPOTHESIS> triboHypo:proposesSystem <TRIBOSYSTEM>.
+<TRIBOSYSTEM> rdf:type tribAIn:TriboSystem.
+<TRIBOSYSTEM> tribAIn:hasStressCollective <STRESSCOLLECTIVE>.
+
+IF KINETICAL_PARAMETER/MOVEMENT_PATTERN:
+<STRESSCOLLECTIVE> tribAIn:hasParameter #ANSWER.
+#ANSWER rdf:type tribAIn:SlidingType.
+
+IF KINETICAL_PARAMETER/MOTION_TYPE:
+<STRESSCOLLECTIVE> tribAIn:hasParameter #ANSWER.
+#ANSWER rdf:type tribAIn:SlidingType.
+
+IF OPERATIONAL_PARAMETER/VELOCITY:
+<STRESSCOLLECTIVE> tribAIn:hasParameter <VELOCITY>.
+<VELOCITY> rdf:type tribAIn:RotationSpeed.
+<VELOCITY> tribAIn:hasValue #ANSWER.
+
+IF OPERATIONAL_PARAMETER/NORMAL_LOAD:
+<STRESSCOLLECTIVE> tribAIn:hasParameter <NORMAL_LOAD>.
+<NORMAL_LOAD> rdf:type tribAIn:Normalload.
+<NORMAL_LOAD> tribAIn:hasValue #ANSWER.
+
+IF OPERATIONAL_PARAMETER/PRESSURE:
+<STRESSCOLLECTIVE> tribAIn:hasParameter <PRESSURE>.
+<PRESSURE> rdf:type tribAIn:ContactPressure.
+<PRESSURE> tribAIn:hasValue #ANSWER.
+
+IF OPERATIONAL_PARAMETER/DISTANCE:
+<STRESSCOLLECTIVE> tribAIn:hasParameter <DISTANCE>.
+<DISTANCE> rdf:type tribAIn:SlidingDistance.
+<DISTANCE> tribAIn:hasValue #ANSWER.
+
+IF OPERATIONAL_PARAMETER/TEMPERATURE:
+<STRESSCOLLECTIVE> tribAIn:hasParameter <TEMPERATURE>.
+<TEMPERATURE> rdf:type tribAIn:Temperature.
+<TEMPERATURE> tribAIn:hasValue #ANSWER.
+
+IF OPERATIONAL_PARAMETER/HUMIDITY:
+<STRESSCOLLECTIVE> tribAIn:hasParameter <HUMIDITY>.
+<HUMIDITY> rdf:type tribAIn:Humidity.
+<HUMIDITY> tribAIn:hasValue #ANSWER.
+
+IF WEAR_BEHAVIOUR OR FRICTION_BEHAVIOUR:
+<HYPOTHESIS> triboHypo:proposesSystem <TRIBOSYSTEM>.
+<TRIBOSYSTEM> rdf:type tribAIn:TriboSystem.
+<TRIBOSYSTEM> tribAIn:hasOutputCollective <OUTPUTCOLLECTIVE>.
+
+IF WEAR_BEHAVIOUR:
+<OUTPUTCOLLECTIVE> tribAIn:hasParameter <WEAR>.
+<WEAR> rdf:type tribAIn:WearBehavior.
+
+IF FRICTION_BEHAVIOUR:
+<OUTPUTCOLLECTIVE> tribAIn:hasParameter <COF>.
+<COF> rdf:type tribAIn:FrictionBehavior.
+
+
+
+IF FRICTION_BEHAVIOUR/FRICTION_TEST_METHOD:
+<COF> tribAIn:observedWith <FRICTION_TEST_METHOD>.
+<FRICTION_TEST_METHOD> rdfs:label #ANSWER.
+<FRICTION_TEST_METHOD> rdf:type tribAIn:TestMethod.
+
+IF FRICTION_BEHAVIOUR/COEFFICIENT_OF_FRICTION:
+<COF> tribAIn:hasObservedParameter <COEFFICENT>.
+<COEFFICENT> tribAIn:hasValue #ANSWER.
+
+
+IF WEAR_BEHAVIOUR/WEAR_TEST_METHOD:
+<WEAR> tribAIn:observedWith <WEAR_TEST_METHOD>.
+<WEAR_TEST_METHOD> rdfs:label #ANSWER.
+<WEAR_TEST_METHOD> rdf:type tribAIn:TestMethod.
+
+IF WEAR_BEHAVIOUR/WEAR_RATE:
+<WEAR> tribAIn:hasObservedParameter <WEARRATE>.
+<WEARRATE> tribAIn:hasValue #ANSWER.
+
+IF WEAR_BEHAVIOUR/WEAR_FORM:
+<WEAR> tribAIn:hasObservedParameter <WEAR_FORM>.
+<WEAR_FORM> rdfs:label #ANSWER.
+<WEAR_FORM> rdf:type tribAIn:SurfaceMorphology.
+
+IF WEAR_BEHAVIOUR/WEAR_TYPE:
+<WEAR> tribAIn:hasObservedParameter <WEAR_TYPE>.
+<WEAR_TYPE> rdfs:label #ANSWER.
+<WEAR_TYPE> rdf:type tribAIn:SurfaceMorphology.
+
+
+IF BODY:
+<HYPOTHESIS> triboHypo:proposesSystem <TRIBOSYSTEM>.
+<TRIBOSYSTEM> rdf:type tribAIn:TriboSystem.
+<TRIBOSYSTEM> tribAIn:hasBody <BODY>.
+<BODY> rdf:type tribAIn:Body.
+
+
+IF COUNTERBODY:
+<HYPOTHESIS> triboHypo:proposesSystem <TRIBOSYSTEM>.
+<TRIBOSYSTEM> rdf:type tribAIn:TriboSystem.
+<TRIBOSYSTEM> tribAIn:hasCounterBody <COUNTERBODY>.
+<COUNTERBODY> rdf:type tribAIn:CounterBody.
+
+IF BODY/MANUFACTURINGPROCESS:
+<BODY> tribAIn:processedBy <BODY_PROCESS>.
+<BODY_PROCESS> rdfs:label #ANSWER.
+
+IF BODY/MACROGEOMETRY:
+<BODY> tribAIn:hasGeometry <BODY_GEOMETRY>.
+<BODY_GEOMETRY> rdfs:label #ANSWER.
+
+IF BODY/MICROGEOMETRY:
+<BODY> tribAIn:hasGeometry <BODY_GEOMETRY>.
+<BODY_GEOMETRY> tribAIn:hasRoughness <BODY_ROUGHNESS>.
+<BODY_ROUGHNESS> tribAIn:hasValue #ANSWER.
+
+IF BODY/DIMENSION:
+<BODY> tribAIn:hasGeometry <BODY_GEOMETRY>.
+<BODY_GEOMETRY> tribAIn:hasGeometricalSpecification <BODY_DIMENSION>.
+<BODY_DIMENSION> tribAIn:hasValue #ANSWER.
+
+IF BODY/BODY_NAME:
+<BODY> rdfs:label #ANSWER.
+
+IF BODY/LAYERSTRUCTURE:
+<BODY> tribAIn:hasLayer <BODY_LAYERSTRUCTURE>.
+<BODY_LAYERSTRUCTURE> rdfs:label #ANSWER.
+
+
+IF COUNTERBODY/MANUFACTURINGPROCESS:
+<COUNTERBODY> tribAIn:processedBy <COUNTERBODY_PROCESS>.
+<COUNTERBODY_PROCESS> rdfs:label #ANSWER.
+
+IF COUNTERBODY/MACROGEOMETRY:
+<COUNTERBODY> tribAIn:hasGeometry <COUNTERBODY_GEOMETRY>.
+<COUNTERBODY_GEOMETRY> rdfs:label #ANSWER.
+
+IF COUNTERBODY/MICROGEOMETRY:
+<COUNTERBODY> tribAIn:hasGeometry <COUNTERBODY_GEOMETRY>.
+<COUNTERBODY_GEOMETRY> tribAIn:hasRoughness <COUNTERBODY_ROUGHNESS>.
+<COUNTERBODY_ROUGHNESS> tribAIn:hasValue #ANSWER.
+
+IF COUNTERBODY/DIMENSION:
+<COUNTERBODY> tribAIn:hasGeometry <COUNTERBODY_GEOMETRY>.
+<COUNTERBODY_GEOMETRY> tribAIn:hasGeometricalSpecification <COUNTERBODY_DIMENSION>.
+<COUNTERBODY_DIMENSION> tribAIn:hasValue #ANSWER.
+
+IF COUNTERBODY/BODY_NAME:
+<COUNTERBODY> rdfs:label #ANSWER.
+
+IF COUNTERBODY/LAYERSTRUCTURE:
+<COUNTERBODY> tribAIn:hasLayer <COUNTERBODY_LAYERSTRUCTURE>.
+<COUNTERBODY_LAYERSTRUCTURE> rdfs:label #ANSWER.

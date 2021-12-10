@@ -1,0 +1,69 @@
+
+{% extends 'enrichment_base.html' %}
+
+{% block header_enrichmentbase %}
+
+{% endblock %}
+
+{% block content_enrichmentbase %}
+
+<div class="section">
+
+    <h1>Annotation-Edit</h1>
+    <p>Some text about who we are and what we do.</p>
+    <p>Resize the browser window to see that this page is responsive by the way.</p>
+  </div>
+  
+<div class="container">
+    <div class="row">
+        <div class="column" style="width:50%">
+            <div class="card">
+                {{ table_html|safe }}
+            </div>
+        </div>
+        <div class="column"  style="width:50%">
+            <div class="card">
+                <div class="text_field">
+                 
+                    <table style="width: 100%">
+                        <tr class="questiontemplate_row">
+                            <th class="questiontemplate_first_col" style="width: 25%;">Something other</th>
+                            <th class="questiontemplate_second_col" contenteditable="true" style="width: 75%;">Editable</th>
+                        </tr>
+                        <tr class="questiontemplate_row">
+                            <td class="questiontemplate_first_col">Category:</td>
+                            <td class="questiontemplate_second_col" contenteditable="true">CompositeElement</td>
+                        </tr>
+                        <tr class="questiontemplate_row">
+                            <td class="questiontemplate_first_col">ID 1:</td>
+                            <td class="questiontemplate_second_col" contenteditable="true">1</td>
+                        </tr>
+                        <tr class="questiontemplate_row">
+                            <td class="questiontemplate_first_col">ID 2:</td>
+                            <td class="questiontemplate_second_col" contenteditable="true">1</td>
+                        </tr>
+                        <tr class="questiontemplate_row">
+                            <td class="questiontemplate_first_col">Concepts to remove or split:</td>
+                            <td class="questiontemplate_second_col" contenteditable="true">1</td>
+                        </tr>
+
+                    </table>
+                    <div>
+                        <button onclick="window.location.href=''" style="width: 24%;"> Save</button>
+                        <button onclick="window.location.href=''" style="width: 24%;"> Remove</button>
+                        <button onclick="window.location.href=''" style="width: 24%;"> Split</button>
+                        <button onclick="window.location.href=''" style="width: 24%;"> Merge</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</div>
+
+{% endblock %}
+
+{% block javascript_enrichmentbase %}
+
+{% endblock %}
+
+                

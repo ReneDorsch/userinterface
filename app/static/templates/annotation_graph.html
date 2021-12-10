@@ -1,0 +1,313 @@
+
+{% extends 'full_base.html' %}
+
+{% block header_fullbase %}
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+{% endblock %}
+
+
+{% block content_fullbase %}
+
+<div class="section">
+    <h1>Analyse annotations of documents</h1>
+    <p>Some text about who we are and what we do.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iure soluta tempora sunt quas velit molestias suscipit nemo corrupti tenetur culpa deleniti nesciunt assumenda quia quae architecto, eius odit beatae maxime?</p>
+</div>
+  
+
+
+<div id="site">
+    <div id="mynetwork" style="height: 1000px; background-color: #ffffff"></div>
+</div>
+{% endblock %}
+
+{% block javascript_fullbase %}
+
+    // create an array with nodes
+    var nodes = new vis.DataSet([
+    { id: 1, label: "Node 1" },
+    { id: 2, label: "Node 2" },
+    { id: 3, label: "Node 3" },
+    { id: 4, label: "Node 4" },
+    { id: 5, label: "Node 5" },
+    { id: 6, label: "Node 6" },
+    { id: 7, label: "Node 7" },
+    { id: 8, label: "Node 8" },
+    { id: 9, label: "Node 9" },
+    { id: 10, label: "Node 10" },
+    ]);
+
+    // create an array with edges
+    var edges = new vis.DataSet([
+    { from: 1, to: 2 },
+    { from: 1, to: 3 },
+    { from: 10, to: 4 },
+    { from: 2, to: 5 },
+    { from: 6, to: 2 },
+    { from: 7, to: 5 },
+    { from: 8, to: 6 },
+    { from: 9, to: 7 },
+    { from: 10, to: 9 },
+    ]);
+
+
+    // create a network
+    var container = document.getElementById("mynetwork");
+    var data = {
+    nodes: nodes,
+    edges: edges,
+    };
+    var options = {
+    layout: {
+            randomSeed: 9
+    },
+    physics: {
+            adaptiveTimestep: false,
+            barnesHut: {
+        theta: 0.5,
+        gravitationalConstant: -2000,
+        centralGravity: 0.3,
+        springLength: 395,
+        springConstant: 0.005,
+        damping: 0.1,
+        avoidOverlap: 0
+        }
+    },
+    nodes: {
+
+            size: 30,
+            font: {
+                size: 32,
+                color: "#000000",
+            },
+            borderWidth: 2,
+            },
+            edges: {
+            width: 2,
+            },
+    };
+
+
+
+    var dot = `{{graph|safe}}`;
+    var data = vis.parseDOTNetwork(dot);
+    var network = new vis.Network(container, data, options);
+
+
+    $('#dropDownId').on('change', function(){
+    //  alert('Hi')
+        document_id = $('#dropDownId :selected').attr('value')
+        $.get({
+                    url: '/get_knowledgeObjects_for_document_id/',
+                    data: { 'document_id': document_id},
+                    success: function (data){
+                        console.log(nodes)
+                        del_nodes(nodes);
+                        del_edges(edges);
+                        console.log('Graph deleted')
+                        add_nodes(nodes, data['nodes']);
+                        add_edges(edges, data['edges']);
+                        console.log('Graph added')
+                        resize_nodes(network, nodes)
+                        console.log('Network resized')
+                    }
+                });
+
+
+
+    });
+
+    function add_triples_iteratively(network, data){
+        var size_dict = create_size_dict(nodes);
+
+        for (var edge in data['edges']){
+
+
+        }
+    }
+
+    //$('#fname').pressEnter(function(){
+    //  var x = $(this).val()
+    //  nodes.update({id: counter, label:x, color:get_color('x')});
+    //  counter -= 1;
+    //  //alert(x)
+    //});
+
+    function create_size_dict(data){
+        var dict = {};
+
+        // Get all Kobjs with there frequency
+        var maximum_mentions = 1;
+        for(var x = 0; x < data.length; x++){
+            if (!(data[x]['to'] in dict)){
+                dict[data[x]['to']] = 1;
+            } else {
+                dict[data[x]['to']] = dict[data[x]['to']] + 1;
+                if (dict[data[x]['to']] > maximum_mentions){
+                    maximum_mentions = dict[data[x]['to']];
+                };
+            };
+
+        };
+
+        //Resize the kObjs
+        for (var key in dict){
+                dict[key] = (1 + (4*dict[key]/maximum_mentions))*30;
+            }
+        return dict;
+    };
+
+
+    function resize_nodes(network, nodes){
+        var min = 9999
+        var max = 0
+
+
+        ids = nodes.getIds()
+        for(x = 0; x < ids.length; x++){
+            if (nodes.get(ids[x]).shape == 'dot'){
+                    var size = network.getConnectedEdges(ids[x]).length
+                    if (size < min){
+                    min = size;
+                    }
+                    if (size > max){
+                    max = size;
+                    }
+                };
+        }
+
+        var variation = max - min;
+
+        for(x = 0; x < ids.length; x++){
+            //console.log(nodes.get(ids[x]));
+            if (nodes.get(ids[x]).shape == 'dot'){
+            nodes.update({ id: ids[x], size: 30 + (network.getConnectedEdges(ids[x]).length / max)*120 });
+            };
+        }
+    };
+    function add_nodes(nodes, data){
+        for(x = 0; x < data.length; x++){
+            nodes.update({
+            'id' : data[x]['id'],
+            'color': get_color(data[x]['category']),
+            'label': data[x]['labels'][0],
+            'shape': data[x]['shape']
+            });
+
+        }
+    };
+
+    function add_edges(edges, data){
+        for(x = 0; x < data.length; x++){
+            edges.update({
+            'id' : data[x]['id'],
+            'from': data[x]['from'],
+            'to': data[x]['to']
+            });
+        }
+    };
+
+    function get_color(category) {
+    var color = '';
+    var category_colors = {
+        'ManufacturingProcess' : '#d8cef6',
+        'OperationalParameter' : '#dce4f5',
+        'KinematicParameter' : '#fbe4d5',
+        'Specification': '#cd9bfb',
+        'TestMethod': '#abd091',
+        'Bodystructure': '#edb089',
+        'CompositeElement': "#66789f",
+        'table': '#dddddd',
+        'paragraph': '#dddddd',
+        'chapter': '#dddddd'
+    };
+    if (!(category in category_colors))  {
+        color = '#888888';
+    } else {
+        color = category_colors[category]
+    }
+    return color
+    }
+
+    $.fn.pressEnter = function(fn) {  
+
+    return this.each(function() {  
+        $(this).bind('enterPress', fn);
+        $(this).keyup(function(e){
+        if(e.keyCode == 13)
+        {
+            $(this).trigger("enterPress");
+        }
+        })
+    });  
+    };
+
+
+    function resize_nodes(network, nodes){
+        var min = 9999
+        var max = 0
+
+
+        ids = nodes.getIds()
+        for(x = 0; x < ids.length; x++){
+            if (nodes.get(ids[x]).shape == 'dot'){
+                    var size = network.getConnectedEdges(ids[x]).length
+                    if (size < min){
+                    min = size;
+                    }
+                    if (size > max){
+                    max = size;
+                    }
+                };
+        }
+
+        var variation = max - min;
+
+        for(x = 0; x < ids.length; x++){
+            //console.log(nodes.get(ids[x]));
+            if (nodes.get(ids[x]).shape == 'dot'){
+            nodes.update({ id: ids[x], size: 30 + (network.getConnectedEdges(ids[x]).length / max)*120 });
+            };
+        }
+    };
+    function add_nodes(nodes, data){
+        for(x = 0; x < data.length; x++){
+            nodes.update({
+            'id' : data[x]['id'],
+            'color': get_color(data[x]['category']),
+            'label': data[x]['labels'][0],
+            'shape': data[x]['shape']
+            });
+
+        }
+    };
+
+    function add_edges(edges, data){
+        for(x = 0; x < data.length; x++){
+            edges.update({
+            'id' : data[x]['id'],
+            'from': data[x]['from'],
+            'to': data[x]['to']
+            });
+        }
+    };
+
+    function del_nodes(nodes){
+        nodes.clear()
+    };
+
+    function del_edges(edges){
+        edges.clear()
+    };
+
+    var counter = 999;
+    $('#fname').pressEnter(function(){
+    var x = $(this).val()
+    nodes.update({id: counter, label:x, color:get_color('x')});
+    counter -= 1;
+    //alert(x)
+    });
+
+{% endblock %}

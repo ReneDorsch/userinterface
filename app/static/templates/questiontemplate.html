@@ -1,0 +1,191 @@
+
+{% extends 'full_base.html' %}
+
+{% block header_fullbase %}
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+{% endblock %}
+
+{% block content_fullbase %}
+<div class="section">
+    <h1>Edit Questiontemplates</h1>
+    <p>Some text about who we are and what we do.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iure soluta tempora sunt quas velit molestias suscipit nemo corrupti tenetur culpa deleniti nesciunt assumenda quia quae architecto, eius odit beatae maxime?</p>
+</div>
+  
+ <!-- Trigger/Open The Modal -->
+ <div class="row" style="width: 100%;">
+    <button id="myBtn" style="width: 33%;">Add Template</button>
+    <button id="myBtn"style="width: 33%;">Delete Template</button>
+    <button id="myBtn"style="width: 33%;">Create new Questiontemplate list</button>
+</div>
+
+<div id="site">
+    <div id="mynetwork" style="height: 600px; background-color: #ffffff"></div>
+</div>
+
+
+
+ <!-- The Modal -->
+ <div id="myModal" class="modal">
+ 
+   <!-- Modal content -->
+   <div class="modal-content">
+    <h2>Notes</h2> 
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam doloremque optio totam repellat ex cumque ratione officiis facilis fugiat, cupiditate suscipit quas, dolor tempore voluptatibus error commodi itaque mollitia similique.</p>
+    <h2>New Template</h2> 
+    <div>
+    <table style="width: 100%">
+        <tr class="questiontemplate_row">
+            <th class="questiontemplate_first_col" style="width: 25%;">Category</th>
+            <th class="questiontemplate_second_col" style="width: 75%;">Data</th>
+        </tr>
+        <tr class="questiontemplate_row">
+            <td class="questiontemplate_first_col">Unique Name</td>
+            <td class="questiontemplate_second_col" contenteditable="true">BODY/NAME</td>
+        </tr>
+        <tr class="questiontemplate_row">
+            <td class="questiontemplate_first_col">Questions:</td>
+            <td class="questiontemplate_second_col" contenteditable="true">What material has been investigated?</td>
+        </tr>
+        <tr class="questiontemplate_row">
+            <td class="questiontemplate_first_col">Expected Answerspace:</td>
+            <td class="questiontemplate_second_col" contenteditable="true">"<Material>", "Mxene"</td>
+        </tr>
+        <tr class="questiontemplate_row">
+            <td class="questiontemplate_first_col">Searchspace: </td>
+            <td class="questiontemplate_second_col" contenteditable="true">"<Material>"</td>
+        </tr>
+        <tr class="questiontemplate_row">
+            <td class="questiontemplate_first_col">Normalstate: </td>
+            <td class="questiontemplate_second_col" contenteditable="true">None</td>
+        </tr>
+        <tr class="questiontemplate_row">
+            <td class="questiontemplate_first_col">Triples: </td>
+            <td class="questiontemplate_second_col" contenteditable="true">&lt;BODY&gt; tribAIn:hasGeometry &lt;BODY_GEOMETRY&gt;.
+                &lt;BODY_GEOMETRY&gt; tribAIn:hasGeometricalSpecification &lt;BODY_DIMENSION&gt;.
+                    &lt;BODY_DIMENSION&gt; tribAIn:hasValue #ANSWER.</td>
+        </tr>
+    </table>
+</div>
+<p>
+
+</p>
+    <div class="row">
+        <div class="column" style="width: 33%;"> <button type="button" class="block" style="width: 100%;">Check template</button>  </div>
+        <div class="column" style="width: 33%;"> <button type="button" class="block" style="width: 100%;">Add template to list</button>  </div>
+        <div class="column" style="width: 33%;"> <button type="button" class="block close" style="width: 100%;">Close</button>  </div>
+    </div>
+
+   </div>
+ 
+ </div> 
+
+{% endblock %}
+
+{% block javascript_fullbase %}
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("myBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks on the button, open the modal
+    btn.onclick = function() {
+    modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+    modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+    } 
+
+
+
+
+    // create an array with nodes
+    var nodes = new vis.DataSet([
+    { id: 1, label: "Node 1" },
+    { id: 2, label: "Node 2" },
+    { id: 3, label: "Node 3" },
+    { id: 4, label: "Node 4" },
+    { id: 5, label: "Node 5" },
+    { id: 6, label: "Node 6" },
+    { id: 7, label: "Node 7" },
+    { id: 8, label: "Node 8" },
+    { id: 9, label: "Node 9" },
+    { id: 10, label: "Node 10" },
+    ]);
+
+    // create an array with edges
+    var edges = new vis.DataSet([
+    { from: 1, to: 2 },
+    { from: 1, to: 3 },
+    { from: 10, to: 4 },
+    { from: 2, to: 5 },
+    { from: 6, to: 2 },
+    { from: 7, to: 5 },
+    { from: 8, to: 6 },
+    { from: 9, to: 7 },
+    { from: 10, to: 9 },
+    ]);
+
+
+    // create a network
+    var container = document.getElementById("mynetwork");
+    var data = {
+    nodes: nodes,
+    edges: edges,
+    };
+    var options = {
+    layout: {
+            randomSeed: 9
+    },
+    physics: {
+            adaptiveTimestep: false,
+            barnesHut: {
+        theta: 0.5,
+        gravitationalConstant: -2000,
+        centralGravity: 0.3,
+        springLength: 395,
+        springConstant: 0.005,
+        damping: 0.1,
+        avoidOverlap: 0
+        }
+    },
+    nodes: {
+
+            size: 30,
+            font: {
+                size: 32,
+                color: "#000000",
+            },
+            borderWidth: 2,
+            },
+            edges: {
+            width: 2,
+            },
+    };
+
+
+
+
+
+    var network = new vis.Network(container, data, options);
+
+
+
+
+
+{% endblock %}
