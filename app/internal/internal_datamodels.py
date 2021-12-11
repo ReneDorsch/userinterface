@@ -4,7 +4,7 @@ import time
 
 from pydantic import BaseModel, Field, validator
 from typing import List, Union, Tuple, Optional
-
+from segtok.segmenter import split_single
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 import fitz
 import os
@@ -12,7 +12,7 @@ from PIL import Image as pilImage
 import PIL as pil
 from io import BytesIO
 from app.config import PATH_TO_APP, PATH_TO_TMP
-
+from typing import Dict
 
 class OptionSelection(BaseModel):
     id: str
@@ -99,10 +99,13 @@ class Chapter(BaseModel):
     pages: List[int] = []
     header: Header = Field(default=None)
 
-    def update_chapter(self, data) -> None:
-        ''' Updates the chapter with the given data. '''
-        # todo: implement the function
-        pass
+    def get_text(self) -> str:
+        """ Returns the text of the chapter """
+        res = ""
+        for paragraph in self.paragraphs:
+            for sentence in paragraph.sentences:
+                res += sentence.text + " "
+        return res
 
     def get_chapter_as_pdf(self, document: 'Document'):
         ''' Gets the chapter as pdf. '''
@@ -146,6 +149,60 @@ class Text(BaseModel):
     title: str = Field(default="")
     authors: List[Author] = Field(default=[])
 
+    def update_text(self, text: str, doc) -> None:
+        """ Updates the text of the document. """
+
+        # Update the chapter text
+        _chapters = text.split("---\n\n")
+        chapters = []
+        for chapter in _chapters:
+            chapter = chapter.rstrip("\n").rstrip("-").lstrip("\n")
+            paragraphs = []
+            for paragraph in chapter.split("\n"):
+                sentences = self.extractSentences(paragraph)
+                sentences = [Sentence(text=sentence) for sentence in sentences]
+
+                # Check for empty sentences
+                sentences = [_ for _ in sentences if _.text.rstrip().lstrip() != '']
+                if len(sentences) > 0:
+                    paragraphs.append(Paragraph(sentences=sentences))
+
+            chapters.append(Chapter(paragraphs=paragraphs))
+
+        # Update the headers
+        for chapter in self.chapters:
+            text = chapter.get_text()
+            first_sentence_in_chapter = text.split(".")[0].lower().replace(" ", "")
+            for _chapter in chapters:
+                if _chapter.header is None:
+                    text = _chapter.get_text()
+                    _first_sentence_in_chapter = text.split(".")[0].lower().replace(" ", "")
+                    if _first_sentence_in_chapter == first_sentence_in_chapter:
+                        _chapter.header = chapter.header
+
+        self.chapters = chapters
+
+
+
+    def extractSentences(self, text):
+        sentences = []
+
+        zwerg = split_single(text)
+        for num, sentence in enumerate(zwerg):
+            sentence = sentence.rstrip()
+
+            if len(sentence) > 0 and len(sentences) > 0:
+                if sentences[-1][-1] != "." and num > 0:
+                    sentences[-1] += " " + sentence.lstrip()
+                    continue
+            if len(sentences) > 0 and num > 0:
+                if len(sentences[-1]) > 5:
+                    if sentences[-1][-6:] == "et al.":
+                        sentences[-1] += " " + sentence.lstrip()
+                        continue
+            sentences.append(sentence)
+        return sentences
+
 
 class Header(BaseModel):
     name: str = Field(default="")
@@ -180,10 +237,37 @@ class Table(BaseModel):
     units: List[str] = Field(default=[])
 
 
-    def update_table(self, data) -> None:
+    def update_table(self, data, doc) -> None:
         ''' Updates the table according to the given data. '''
-        # todo: implement the function.
-        pass
+
+        def mostly_numbers(text: str) -> bool:
+            """Checks if a text consits mostly of words"""
+            return [_.isdecimal() for _ in text].count(True) / len(text) >= 0.5
+
+        _columns = [[] for i in range(len(data['0']))]
+        rows = []
+        table_header = None
+        for num_row, row in enumerate(data.values()):
+            if len(row) == 0:
+                continue
+            else:
+                _row = []
+                # If TableHeader
+                if num_row == 0:
+                    table_header = Row(cells=[Cell(text=_, type="WORD", category="WORD") for _ in row[1:]])
+                else:
+                    for num_col, _cell in enumerate(row[1:]):
+                        _type = "NUM" if mostly_numbers(_cell) else "WORD"
+                        cell = Cell(text=_cell, type=_type, category=_type)
+                        _columns[num_row].append(cell)
+                        _row.append(cell)
+                rows.append(Row(cells=_row))
+        columns = []
+        for _column in _columns:
+            columns.append(Column(cells=_column))
+        self.table_header = table_header
+        self.columns = columns
+        self.rows = rows
 
     def decode_file(self) -> str:
         ''' Decodes the binary (base64) file. '''
@@ -217,6 +301,44 @@ class Image(BaseModel):
     description: str = Field(default='')
     name: str = Field(default='')
 
+    def update_image(self, data, doc) -> None:
+        ''' Updates the table according to the given data. '''
+
+        def mostly_numbers(text: str) -> bool:
+            """Checks if a text consits mostly of words"""
+            return [_.isdecimal() for _ in text].count(True) / len(text) >= 0.5
+
+        _columns = [[] for i in range(len(data['0']))]
+        rows = []
+        table_header = None
+        for num_row, row in enumerate(data.values()):
+            if len(row) == 0:
+                continue
+            else:
+                _row = []
+                # If TableHeader
+                if num_row == 0:
+                    table_header = Row(cells=[Cell(text=_, type="WORD", category="WORD") for _ in row[1:]])
+                else:
+                    for num_col, _cell in enumerate(row[1:]):
+                        _type = "NUM" if mostly_numbers(_cell) else "WORD"
+                        cell = Cell(text=_cell, type=_type, category=_type)
+                        _columns[num_row].append(cell)
+                        _row.append(cell)
+                rows.append(Row(cells=_row))
+        columns = []
+        for _column in _columns:
+            columns.append(Column(cells=_column))
+
+        table = Table(rows=rows,
+              columns=columns,
+              table_header=table_header,
+              base64_file=self.base64_file,
+              description=self.description
+              )
+
+        doc.tables.append(table)
+        doc.images.remove(self)
 
     def get_image(self):
         return self.base64_file
@@ -392,6 +514,70 @@ class Document(BaseModel):
     class Config:
         allow_population_by_field_name = True
 
+    def split_kObj(self, data: Dict):
+        """ Splits a Kobj in two kObjs. """
+        # Get the data for the new kObj
+        id_ = max([_.id for _ in self.knowledgeObjects]) + 1
+        category = data['category']
+        old_kObj = [_ for _  in self.knowledgeObjects if _.id == int(data['id'])][0]
+        labels = data['labels'].replace(" ", "").split(",")
+        new_annotations = []
+        for annotation in self.annotations:
+            if annotation.id in old_kObj.annotation_ids:
+                if " ".join([_.text for _ in annotation.words]) in labels:
+                    new_annotations.append(annotation)
+
+        # Check if any data could be added
+        if new_annotations == []:
+            return
+
+        kObj = KnowledgeObject(id=id_,
+                               category=category,
+                               labels=labels,
+                               annotation_ids=[_.id for _ in new_annotations])
+        # Add the new kobj
+        self.knowledgeObjects.append(kObj)
+
+        # Delete the ids from the old Kobj
+        for anno in new_annotations:
+            if anno.id in old_kObj.annotation_ids:
+                old_kObj.annotation_ids.remove(anno.id)
+
+        for label in labels:
+            if label in old_kObj.labels:
+                old_kObj.labels.remove(label)
+
+
+    def remove_KObjs(self, data: Dict):
+        """Removes one or several items from the dict"""
+        ids = data['id'].replace(" ", "")
+        ids = ids.split(",")
+        ids = [int(_) for _ in ids]
+
+        self.knowledgeObjects = [_ for _ in self.knowledgeObjects if _.id not in ids]
+
+
+
+    def merge_kObjs(self, data: Dict):
+        """ Merges two kObjs together. """
+        kObj1 = [_ for _  in self.knowledgeObjects if _.id == int(data['id1'])][0]
+        kObj2 = [_ for _ in self.knowledgeObjects if _.id == int(data['id2'])][0]
+        kObj1.annotation_ids.extend(kObj2.annotation_ids)
+        kObj1.labels.exted(kObj2.labels)
+        self.knowledgeObjects.remove(kObj2)
+
+
+    def update_kObj(self, id, data):
+        """ Updates the kObj. """
+        kObj = [_ for _  in self.knowledgeObjects if _.id == int(id)][0]
+        kObj.category = data['category']
+
+
+
+    def get_knowledgeObjects(self) -> List[KnowledgeObject]:
+        """ Returns a list of completly initailized kObjs. """
+        return self.knowledgeObjects
+
     def get_fulltext(self) -> str:
         """ Returns the completly extracted text. """
         text = ""
@@ -401,15 +587,19 @@ class Document(BaseModel):
                 for sentence in paragraph.sentences:
                     text += sentence.text + " "
                 text += "\n"
-            text += "\n\n"
+            text += 80*"-" + "\n\n"
 
         return text
 
     def get_image(self, id: int):
+        if len(self.images) == 0:
+            return None
         id = id % len(self.images)
         return self.images[id]
 
     def get_table(self, id: int):
+        if len(self.tables) == 0:
+            return None
         id = id % len(self.tables)
         return self.tables[id]
 

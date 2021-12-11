@@ -64,11 +64,12 @@
             contentType: 'application/json',
             data: JSON.stringify({
                                     'id': document_id.val(),
-                                    "mode": option_mode.val()
+                                    "mode": option_mode.text()
                                 }),
             dataType: 'json',
             success: function (data){
-                console.log(data)
+                console.log(site + data['url'])
+                window.location.href = data['url'];
 
         }
     });

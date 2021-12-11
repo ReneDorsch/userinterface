@@ -4,9 +4,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from static.routers import advanced, analysis, enrichment
-from app.internal.tasks import document_enrichment, document_annotation, document_analysis
-from database.database import db
+from static.routers import advanced, analysis, enrichment, edit
+from app.internal.tasks import document_enrichment, document_annotation
+
 app = FastAPI()
 templates = Jinja2Templates(directory="static/templates")
 
@@ -16,6 +16,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(advanced.router)
 app.include_router(analysis.router)
 app.include_router(enrichment.router)
+app.include_router(edit.router)
 app.include_router(document_enrichment.router)
 app.include_router(document_annotation.router)
 

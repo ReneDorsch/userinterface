@@ -9,10 +9,10 @@
 
 <div class="section">
     <div>
-    <button onclick="window.location.href='./edit_document'" style="width: 20%;"> Go Back</button>
-    <button onclick="window.location.href='./edit_document'" style="width: 20%;"> Previous</button>
-    <button onclick="window.location.href='./edit_document'" style="width: 20%;"> Save</button>
-    <button onclick="window.location.href='./edit_document'" style="width: 20%;"> Next</button>
+    <button onclick=call_with_link('./edit_document') style="width: 20%;"> Go Back</button>
+    <button onclick='./edit_document' style="width: 20%;"> Previous</button>
+    <button onclick=update('./update_document') style="width: 20%;"> Save</button>
+    <button onclick="edit_document" style="width: 20%;"> Next</button>
     </div>
     <h1>Text-Edit</h1>
     <p>Some text about who we are and what we do.</p>
@@ -31,19 +31,50 @@
         <div class="column"  style="width:50%">
             <div class="card">
                 <div class="text_field">
-                    <textarea id="textarea"  style="width:100%; height:600px">{{text}} 
+                    <textarea id="text"  style="width:100%; height:600px">{{text}}
                       
                     </textarea>
                 </div>
             </div>
         </div>
-
+<p id="hiddenid" hidden>{{id}}</p>
+<p id="hiddenpage_number" hidden>{{num}}</p>
+<p id="type" hidden>{{type}}</p>
 </div>
 
 {% endblock %}
 
-{% block javascript_enrichmentbase %}
+{% block javascript_fullbase %}
+    function call_with_link(site) {
 
+        // Get the relevant attributes.
+        let document_id = $('#hiddenid').text();
+        let pagenum = $('#hiddenpage_number').text();
+        let type = $('#type').text();
+
+         window.location.href = site +
+                            "\/?id=" + document_id +
+                            "&num=" + pagenum +
+                            "&type=" + type;
+    }
+
+    function update(site) {
+        var document_id = $('#hiddenid').text();
+        var pagenum = $('#hiddenpage_number').text();
+        var type = $('#type').text();
+        let text = $('textarea#text').val();
+
+        $.ajax({
+            type: "PUT",
+            url: site + "/?itemid=" + document_id ,
+            contentType: "application/json",
+            data: JSON.stringify({"document_id": document_id,
+                    "num": pagenum,
+                    "type": type,
+                    "data": {"text": text},
+                    })
+        });
+    }
 {% endblock %}
 
                 

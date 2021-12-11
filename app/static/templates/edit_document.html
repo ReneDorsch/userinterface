@@ -1,14 +1,21 @@
 
 {% extends 'enrichment_base.html' %}
 
-{% block header_enrichmentbase %}
+{% block header_fullbase %}
 
 {% endblock %}
 
 {% block content_enrichmentbase %}
 
 <div class="section">
-    <h1>Edit text </h1>
+    <h1>Edit Document {{ name }}</h1>
+<div>
+    <p style="padding-bottom: 30px;">
+        <input type="button" onclick="location.href='../enrichment/upload_files'" value="Choose Options" style="float: left;">
+        <input type="button" onclick="call('../enrichment/start_annotation')" value="Start Annotation" style="float: right;">
+
+    </p>
+</div>
     <p>Some text about who we are and what we do.</p>
     <p>Resize the browser window to see that this page is responsive by the way.</p>
   </div>
@@ -22,7 +29,15 @@
           <h2>Text</h2>
           <p>Some text that describes me lorem ipsum ipsum lorem.</p>
 
-          <p><button class="button" onclick="window.location.href='./edit_text'">Edit Text</button></p>
+          <p>
+            <button class="button"
+                     {% if not active %}
+                          disabled
+                     {% endif %}
+                     onclick=call_with_link("./edit_text")>
+              Edit Text
+            </button>
+          </p>
         </div>
       </div>
     </div>
@@ -34,7 +49,16 @@
           <h2>Images</h2>
           <p>Some text that describes me lorem ipsum ipsum lorem.</p>
 
-          <p><button class="button" onclick="window.location.href='./edit_images'">Edit Images</button></p>
+                    <p>
+            <button class="button"
+                     {% if not (active and has_images)  %}
+                          disabled
+                     {% endif %}
+                     onclick=call_with_link("./edit_images")>
+              Edit Text
+            </button>
+          </p>
+
         </div>
       </div>
     </div>
@@ -46,16 +70,56 @@
           <h2>Tables</h2>
           <p>Some text that describes me lorem ipsum ipsum lorem.</p>
 
-          <p><button class="button" onclick="window.location.href='./edit_tables'">Edit Tables</button></p>
-        </div>
+           <p>
+            <button class="button"
+                     {% if not (active and has_tables) %}
+                          disabled
+                     {% endif %}
+                     onclick=call_with_link("./edit_tables")>
+              Edit Text
+            </button>
+          </p>
+
+                 </div>
       </div>
     </div>
   </div> 
-
+<p id="hiddenid" hidden>{{id}}</p>
 {% endblock %}
 
-{% block javascript_enrichmentbase %}
+{% block javascript_fullbase %}
 
+function call_with_link(site) {
+        // Get the relevant attributes.
+        let document_id = $('#hiddenid');
+        //console.log(site + "\/?id=" + document_id.text());
+         window.location.href = site + "\/?id=" + document_id.text();
+    }
+
+ function call(site) {
+
+        // Get the relevant attributes.
+        var document_id = $('#hiddenid');
+
+
+        // Call the backend and go to the next site.
+
+            $.post({
+                url: '../enrichment/annotation_results',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                                        'id': document_id.text(),
+                                        "mode": ''
+                                    }),
+                dataType: 'json',
+                success: function (data){
+                    console.log(site + data['url'])
+                    window.location.href = data['url'];
+
+            }
+
+        });
+    }
 {% endblock %}
 
                 

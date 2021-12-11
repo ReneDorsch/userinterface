@@ -2,8 +2,8 @@ from app.internal.internal_datamodels import Document
 from app.internal.parser.parsers import AnswerParser, AnnotationGraphParser, ContextGraphParser, QuestionTemplateParser
 from app.internal.agent.graph_agent import GraphAgent
 from typing import List
-from app.config import PATH_TO_TRIPLEFILE, PATH_TO_QUESTIONTEMPLATE
-
+from app.config import PATH_TO_TRIPLEFILE, PATH_TO_QUESTIONTEMPLATE, PATH_TO_TMP
+import os
 import json
 
 annotation_parser = AnnotationGraphParser()
@@ -101,3 +101,17 @@ def create_context_graph(document: Document):
     return "digraph { " + to_dot(res) + " }"
 
     print("ok")
+
+def get_download_link(document: Document) -> str:
+    """ Creates a path to the graph file. """
+    answers = document.file_path
+    g = GraphAgent(path_to_qt=PATH_TO_QUESTIONTEMPLATE,
+                   path_to_graph=PATH_TO_TRIPLEFILE)
+
+    res = g.get_graph(answers, linked_data_format=True)
+
+    file_path = os.path.join(PATH_TO_TMP, f"{document.id}.json_ld")
+    with open(file_path, "w") as file:
+        file.write(res)
+
+    return file_path

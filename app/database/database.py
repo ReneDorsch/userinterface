@@ -61,8 +61,22 @@ class DataBase:
 
     _indexs: Dict[str, Index] = {idx: Index(os.path.join(PATH_TO_APP, path)) for idx, path in indexs.items()}
 
+
+    def get_file(self, index: str, file_id: str, cached: bool = True) -> Dict:
+        """ Method to get a file. """
+        if cached:
+            return self._get_cached_file(index, file_id)
+        else:
+            return self._get_file(index, file_id)
+
+
+
     @lru_cache()
-    def get_file(self, index: str, file_id: str) -> Dict:
+    def _get_cached_file(self, index: str, file_id: str) -> Dict:
+        """ If cached data is available use the cached fil.e"""
+        return self._get_file(index, file_id)
+
+    def _get_file(self, index: str, file_id: str) -> Dict:
         ''' Loads and returns the document if found else it returns false. '''
         _index = self._indexs[index]
         if file_id in _index.data:
@@ -72,8 +86,20 @@ class DataBase:
             return data
         return None
 
+
+
+    def get_all_files(self, index: str, cached: bool = True) -> List[Document]:
+        """ Returns all files from a given index. """
+        if cached:
+            return self._get_cached_all_files(index)
+        else:
+            return self._get_all_files(index)
+
     @lru_cache()
     def get_all_files(self, index: str) -> List[Document]:
+        return self._get_all_files(index)
+
+    def _get_all_files(self, index: str) -> List[Document]:
         """ Returns all files from a given index. """
         res = []
         _index = self._indexs[index]
@@ -81,7 +107,6 @@ class DataBase:
             with open(path_to_file, "r") as file:
                 res.append(json.load(file))
         return res
-
 
     def add_file(self, file: Union[Document, QuestionTemplate, 'TripleTemplate'], file_type, overwrite=False):
         ''' Adds a new file to the db. '''
@@ -101,7 +126,7 @@ class DataBase:
         ''' Updates the files. '''
         file_path = file.file_path
         with open(file_path, "w") as f:
-            json.dump(file.to_json(), f)
+            json.dump(file.dict(), f)
         
     def del_file(self, file, file_type: str):
         ''' Deletes the file and reload the indexs. '''

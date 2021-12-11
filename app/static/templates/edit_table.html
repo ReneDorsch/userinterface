@@ -9,11 +9,10 @@
 
 <div class="section">
     <div>
-    <button onclick="window.location.href='./edit_document'" style="width: 20%;"> Go Back</button>
-    <button onclick="window.location.href='./edit_document'" style="width: 20%;"> Previous</button>
-    <button onclick="window.location.href='./edit_document'" style="width: 20%;"> Save</button>
-    <button onclick="window.location.href='./edit_document'" style="width: 20%;"> Next</button>
-    </div>
+      <button onclick=call_with_link('./edit_document') style="width: 20%;"> Go Back</button>
+    <button onclick=prev('./edit_tables') style="width: 20%;"> Previous</button>
+    <button onclick=update('./update_document') style="width: 20%;"> Save as Table</button>
+    <button onclick=next('./edit_tables') style="width: 20%;"> Next</button>   </div>
     <h1>Table-Edit</h1>
     <p>Some text about who we are and what we do.</p>
     <p>Resize the browser window to see that this page is responsive by the way.</p>
@@ -28,21 +27,161 @@
                 </div>
             </div>
         </div>
-        <div class="column"  style="width:50%">
-            <div class="card">
-                <div class="text_field">
-                    {{ table_html|safe }}
+        <div>
+
+            <div class="column"  style="width:50%">
+                <div class="card">
+                    <div class="text_field">
+                         <table id="image_table">
+                            {{ table_html|safe }}
+                        </table>
+
+                    </div>
                 </div>
             </div>
+             <div>
+
+                <button onclick=new_row() style="width: 25%"> New Row</button>
+                <button onclick=new_column('./update_document') style="width: 25%"> New Column</button>
+                <button onclick=delete_row('./edit_document') style="width: 25%;"> Delete last Row</button>
+                <button onclick=delete_column('./edit_document') style="width: 25%;"> Delete last Column</button>
+             </div>
         </div>
 
+
+<p id="hiddenid" hidden>{{id}}</p>
+<p id="hiddenpage_number" hidden>{{num}}</p>
+<p id="type" hidden>{{type}}</p>
 </div>
 
 
 {% endblock %}
 
-{% block javascript_enrichmentbase %}
+{% block javascript_fullbase %}
 
+    let rows = {{rows}};
+    let columns = {{columns}};
+
+    function next(site) {
+
+        // Get the relevant attributes.
+        let document_id = $('#hiddenid').text();
+        let pagenum = parseInt($('#hiddenpage_number').text()) + 1;
+        let type = $('#type').text();
+
+
+         window.location.href = site +
+                            "\/?id=" + document_id +
+                            "&num=" + pagenum  +
+                            "&type=" + type;
+
+    }
+    function prev(site) {
+
+        // Get the relevant attributes.
+        let document_id = $('#hiddenid').text();
+        let pagenum = parseInt($('#hiddenpage_number').text()) - 1;
+        let type = $('#type').text();
+
+         window.location.href = site +
+                            "\/?id=" + document_id +
+                            "&num=" + pagenum +
+                            "&type=" + type;
+    }
+
+    function call_with_link(site) {
+
+        // Get the relevant attributes.
+        let document_id = $('#hiddenid').text();
+        let pagenum = $('#hiddenpage_number').text();
+        let type = $('#type').text();
+
+         window.location.href = site +
+                            "\/?id=" + document_id +
+                            "&num=" + pagenum +
+                            "&type=" + type;
+    }
+
+    function new_row() {
+        rows += 1;
+        var table_data = '<tr> <td class="non_editable"> Datarow ' + rows + '</td>';
+        for (let i = 0; i < columns; i++){
+            table_data += '<td contenteditable>Alfreds Futterkiste</td>';
+        }
+        table_data += '</tr>';
+            $('#image_table > tbody:last-child').append(table_data);
+
+    };
+
+
+    function new_column() {
+
+        $('#image_table').find('tr').each(function(){
+                $(this).find('td').eq(columns).after('<td contenteditable>new cell added</td>');
+           });
+        $('#image_table').find('thead').each(function(){
+                $(this).find('th').eq(columns).after('<th contenteditable>new cell added</th>');
+           });
+        columns += 1;
+    };
+
+    function delete_row(){
+        if (rows > 1){
+            $('#image_table').find('tr:last').each(function(){
+                $(this).remove()
+            });
+        rows -= 1;
+        };
+
+    }
+
+    function delete_column(){
+        if (columns > 1){
+        $('#image_table').find('tr').each(function(){
+            $(this).find('td').eq(columns).remove();
+        });
+        $('#image_table').find('thead').each(function(){
+            $(this).find('th').eq(columns).remove();
+        });
+        columns -= 1;
+        }
+    }
+
+     function update(site) {
+        var document_id = $('#hiddenid').text();
+        var pagenum = $('#hiddenpage_number').text();
+        var type = $('#type').text();
+        let table = $('image_table').val();
+
+        var table_data = {}
+
+        table_data[0] = []
+        $('#image_table').find('thead').each(function(){
+            $(this).find('th').each(function(){
+                table_data[0].push($(this).text());
+            });
+        });
+
+        var i = 0;
+        $('#image_table').find('tr').each(function(){
+            i += 1;
+            table_data[i] = []
+            $(this).find('td').each(function(){
+                table_data[i].push($(this).text());
+            });
+        });
+
+        $.ajax({
+            type: "PUT",
+            url: site + "/?itemid=" + document_id ,
+            contentType: "application/json",
+            data: JSON.stringify({"document_id": document_id,
+                                    "num": pagenum,
+                                    "type": type,
+                                    "data": {"table": table_data},
+                                    })
+        });
+        }
 {% endblock %}
 
                 

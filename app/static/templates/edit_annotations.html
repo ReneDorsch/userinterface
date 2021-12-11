@@ -8,7 +8,12 @@
 {% block content_enrichmentbase %}
 
 <div class="section">
-
+<div>
+    <p style="padding-bottom: 30px;">
+        <input type="button" onclick="location.href='../analysis/start_analysis'" value="Start Analysis" style="float: right;">
+        <input type="button" onclick="location.href='../enrichment/upload_files'" value="Edit Text Extraction" style="float: left;">
+    </p>
+</div>
     <h1>Annotation-Edit</h1>
     <p>Some text about who we are and what we do.</p>
     <p>Resize the browser window to see that this page is responsive by the way.</p>
@@ -18,7 +23,22 @@
     <div class="row">
         <div class="column" style="width:50%">
             <div class="card">
-                {{ table_html|safe }}
+                <table id="annotation_table">
+                        <thead>
+                            <th>ID</th>
+                            <th>Category</th>
+                            <th>Labels</th>
+                        </thead>
+                        {%  for kObj in knowledgeObjects %}
+                            <tr>
+                                <td>{{ kObj.id }}</td>
+                                <td>{{ kObj.category }}</td>
+                                <td>{{ ", ".join(kObj.labels) }}</td>
+
+                            </tr>
+                        {% endfor %}
+
+                </table>
             </div>
         </div>
         <div class="column"  style="width:50%">
@@ -28,31 +48,34 @@
                     <table style="width: 100%">
                         <tr class="questiontemplate_row">
                             <th class="questiontemplate_first_col" style="width: 25%;">Something other</th>
-                            <th class="questiontemplate_second_col" contenteditable="true" style="width: 75%;">Editable</th>
+                            <th class="questiontemplate_second_col" style="width: 75%;">Editable</th>
                         </tr>
                         <tr class="questiontemplate_row">
                             <td class="questiontemplate_first_col">Category:</td>
-                            <td class="questiontemplate_second_col" contenteditable="true">CompositeElement</td>
+                            <td class="questiontemplate_second_col" id="category" contenteditable="true">CompositeElement</td>
                         </tr>
                         <tr class="questiontemplate_row">
                             <td class="questiontemplate_first_col">ID 1:</td>
-                            <td class="questiontemplate_second_col" contenteditable="true">1</td>
+                            <td class="questiontemplate_second_col" id="id1" contenteditable="true">1</td>
                         </tr>
                         <tr class="questiontemplate_row">
                             <td class="questiontemplate_first_col">ID 2:</td>
-                            <td class="questiontemplate_second_col" contenteditable="true">1</td>
+                            <td class="questiontemplate_second_col" id="id2" contenteditable="true">1</td>
                         </tr>
                         <tr class="questiontemplate_row">
                             <td class="questiontemplate_first_col">Concepts to remove or split:</td>
-                            <td class="questiontemplate_second_col" contenteditable="true">1</td>
+                            <td class="questiontemplate_second_col" id="id_concept" contenteditable="true">1</td>
                         </tr>
-
+                        <tr class="questiontemplate_row">
+                            <td class="questiontemplate_first_col">Labels that should be added/removed for a concept :</td>
+                            <td class="questiontemplate_second_col" id="labels" contenteditable="true">titanium, cermets</td>
+                        </tr>
                     </table>
                     <div>
-                        <button onclick="window.location.href=''" style="width: 24%;"> Save</button>
-                        <button onclick="window.location.href=''" style="width: 24%;"> Remove</button>
-                        <button onclick="window.location.href=''" style="width: 24%;"> Split</button>
-                        <button onclick="window.location.href=''" style="width: 24%;"> Merge</button>
+                        <button onclick=remove() style="width: 24.6%;"> Remove</button>
+                        <button onclick=split() style="width: 24%;"> Split</button>
+                        <button onclick=merge() style="width: 24.6%;"> Merge</button>
+                        <button onclick=update_category() style="width: 24.6%;"> Change Category </button>
                     </div>
                 </div>
             </div>
@@ -63,6 +86,84 @@
 {% endblock %}
 
 {% block javascript_enrichmentbase %}
+    var document_id = "{{id}}";
+    function remove(){
+        var id = $("#id_concept").text();
+        console.log(id);
+        $.ajax({
+            type: "PUT",
+            url:  "../edit/annotation/annotation_remove/?document_id=" + document_id ,
+            contentType: "application/json",
+            data: JSON.stringify({"document_id": document_id,
+                                    "data": {"id": id},
+                                    }),
+            success: function(data){
+               $("#annotation_table").html(data['template']);
+    }
+        })
+    }
+
+    function split(){
+        var id = $("#id_concept").text();
+    var labels = $("#labels").text()
+    var category = $("#category").text()
+        console.log(id);
+        $.ajax({
+            type: "PUT",
+            url: "../edit/annotation/annotation_split/?document_id=" + document_id ,
+            contentType: "application/json",
+            data: JSON.stringify({"document_id": document_id,
+                                    "data": {"id": id,
+                                             "labels": labels,
+                                             "category": category},
+
+                                    }),
+                success: function(data){
+$("#annotation_table").html(data['template']);
+    }
+        });
+    }
+
+    function merge(){
+        var id_1 = $("#id1").text();
+        var id_2 = $("#id2").text();
+        console.log(id_1);
+        console.log(id_2);
+        $.ajax({
+            type: "PUT",
+            url: "../edit/annotation/annotation_merge/?document_id=" + document_id ,
+            contentType: "application/json",
+            data: JSON.stringify({"document_id": document_id,
+                                    "data": {
+                                                "id1": id1,
+                                                "id2": id2
+                                            },
+                                    }),
+                success: function(data){
+               $("#annotation_table").html(data['template']);
+    }
+        });
+    }
+
+        function update_category(){
+        var id_1 = $("#id1").text();
+        var category = $("#category").text();
+
+        $.ajax({
+            type: "PUT",
+            url: "../edit/annotation/change_category_annotations/?document_id=" + document_id ,
+            contentType: "application/json",
+            data: JSON.stringify({"document_id": document_id,
+                                    "data":{
+                                                "id": id_1,
+                                                "category": category
+                                            }
+                                    }),
+                success: function(data){
+                 $("#annotation_table").html(data['template']);
+            }
+        });
+    }
 
 {% endblock %}
 
