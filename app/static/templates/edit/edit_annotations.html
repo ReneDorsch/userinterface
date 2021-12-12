@@ -8,22 +8,14 @@
 {% block content_fullbase %}
 
 <div class="section">
-<div>
-    <p style="padding-bottom: 30px;">
-        <input type="button" onclick=call('../enrichment/analysis_results') value="Start Analysis" style="float: right;">
-        <input type="button" onclick='../enrichment/edit_document' value="Edit Text Extraction" style="float: left;">
-    </p>
-</div>
-    <h1>Annotation-Edit</h1>
-    <p>Some text about who we are and what we do.</p>
-    <p>Resize the browser window to see that this page is responsive by the way.</p>
+
+
   </div>
-  
-<div class="container">
+      <div style="height: 10px;"></div>
+<div class="container-fluid">
     <div class="row">
         <div class="column" style="width:50%">
-            <div class="card">
-                <table id="annotation_table">
+                <table id="annotation_table" class="table">
                         <thead>
                             <th>ID</th>
                             <th>Category</th>
@@ -39,46 +31,52 @@
                         {% endfor %}
 
                 </table>
-            </div>
+
         </div>
         <div class="column"  style="width:50%">
-            <div class="card">
+
                 <div class="text_field">
                  
-                    <table style="width: 100%">
-                        <tr class="questiontemplate_row">
-                            <th class="questiontemplate_first_col" style="width: 25%;">Something other</th>
-                            <th class="questiontemplate_second_col" style="width: 75%;">Editable</th>
-                        </tr>
-                        <tr class="questiontemplate_row">
-                            <td class="questiontemplate_first_col">Category:</td>
-                            <td class="questiontemplate_second_col" id="category" contenteditable="true">CompositeElement</td>
-                        </tr>
-                        <tr class="questiontemplate_row">
-                            <td class="questiontemplate_first_col">ID 1:</td>
-                            <td class="questiontemplate_second_col" id="id1" contenteditable="true">1</td>
-                        </tr>
-                        <tr class="questiontemplate_row">
-                            <td class="questiontemplate_first_col">ID 2:</td>
-                            <td class="questiontemplate_second_col" id="id2" contenteditable="true">1</td>
-                        </tr>
-                        <tr class="questiontemplate_row">
-                            <td class="questiontemplate_first_col">Concepts to remove or split:</td>
-                            <td class="questiontemplate_second_col" id="id_concept" contenteditable="true">1</td>
-                        </tr>
-                        <tr class="questiontemplate_row">
-                            <td class="questiontemplate_first_col">Labels that should be added/removed for a concept :</td>
-                            <td class="questiontemplate_second_col" id="labels" contenteditable="true">titanium, cermets</td>
-                        </tr>
+                    <table style="width: 100%" class="table">
+                        <thead>
+                            <tr class="questiontemplate_row">
+                                <th class="questiontemplate_first_col" style="width: 40%;">Something other</th>
+                                <th class="questiontemplate_second_col" style="width: 60%;">Editable</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="questiontemplate_row">
+                                <td class="questiontemplate_first_col">Category:</td>
+                                <td class="questiontemplate_second_col" id="category" contenteditable="true">CompositeElement</td>
+                            </tr>
+                            <tr class="questiontemplate_row">
+                                <td class="questiontemplate_first_col">ID 1:</td>
+                                <td class="questiontemplate_second_col" id="id1" contenteditable="true">1</td>
+                            </tr>
+                            <tr class="questiontemplate_row">
+                                <td class="questiontemplate_first_col">ID 2:</td>
+                                <td class="questiontemplate_second_col" id="id2" contenteditable="true">1</td>
+                            </tr>
+                            <tr class="questiontemplate_row">
+                                <td class="questiontemplate_first_col">Concepts to remove or split:</td>
+                                <td class="questiontemplate_second_col" id="id_concept" contenteditable="true">1</td>
+                            </tr>
+                            <tr class="questiontemplate_row">
+                                <td class="questiontemplate_first_col">Labels that should be added/removed for a concept :</td>
+                                <td class="questiontemplate_second_col" id="labels" contenteditable="true">titanium, cermets</td>
+                            </tr>
+                        </tbody>
                     </table>
-                    <div>
-                        <button onclick=remove() style="width: 24.6%;"> Remove</button>
-                        <button onclick=split() style="width: 24%;"> Split</button>
-                        <button onclick=merge() style="width: 24.6%;"> Merge</button>
-                        <button onclick=update_category() style="width: 24.6%;"> Change Category </button>
+
+                  <div class="btn-group d-flex w-100" role="group" aria-label="...">
+
+                        <button onclick=remove() type="button" class="w-100" > Remove</button>
+                        <button onclick=split() type="button" class="w-100" > Split</button>
+                        <button onclick=merge() type="button" class="w-100" > Merge</button>
+                        <button onclick=update_category() type="button" class="w-100" > Change Category </button>
                     </div>
                 </div>
-            </div>
+
         </div>
 <p id="hiddenid" hidden>{{id}}</p>
 </div>
