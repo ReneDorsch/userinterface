@@ -3,35 +3,24 @@
 
 {% block header %}
 
-    {% block header_fullbase %}
-        
-    {% endblock %}
+{% block header_fullbase %}
+
+{% endblock %}
+
 {% endblock %}
 
 {% block content %}
 
 <div id="mySidebar" class="sidebar">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
     <p></p>
     <a class="outer-a-sidebar" href="../">Start Here</a>
     <a class="outer-a-sidebar" href="../enrichment/start_page">Start Process</a>
-
     <a class="outer-a-sidebar" href="../edit/start_page">Edit Data</a>
     <a class="outer-a-sidebar" href="../analysis/start_page">Analyse Data</a>
-    <button class="dropdown-btn">Advanced
-        <i class="fa fa-caret-down"></i>
-    </button>
-    <div class="dropdown-container"> 
-        <a href="../advanced/named_entity_model">Update Named Entity Model</a>
-        <a href="../advanced/question_answering_model">Update Question Answering Model</a>
-        <a href="../advanced/questiontemplate">Edit Questiontemplates</a>
-    </div>
     <a class="outer-a-sidebar" href="../about">About</a>
 </div>
   
 <div id="main">
-    <button class="openbtn" onclick="openNav()">☰ Open Sidebar</button>  
-
 
     {% block content_fullbase %}
     
@@ -72,9 +61,9 @@
         });
         };
 
-        {% if active == True %}
+
             openNav();
-        {% endif %}
+
 
         {% block javascript_fullbase %}
 

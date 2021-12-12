@@ -9,9 +9,7 @@
 </div>
 
 <div>
-    <p>
-    <h2>File Selection</h2>
-    <p>Please select a file that you want to analyse </p>
+  <div style="height: 10px;"></div>
 
             <table id="document_table" class="table">
               <thead>
@@ -23,9 +21,9 @@
               <tbody>
 
                    {% for state in status %}
-                    <tr class="clickable-row">
-                        <td>{{ "".join(state.keys()) }}</td>
-                        <td>{{ "".join(state.values()) }}</td>
+                     <tr class="clickable-row" id="{{ state["id"] }}">
+                        <td >{{ state["name"] }}</td>
+                        <td>{{ state["state"]}}</td>
                     </tr>
                     {% endfor %}
 
@@ -35,14 +33,10 @@
 
 
 
-    <p> Refresh data
         <button onClick="window.location.href=window.location.href">Refresh Page</button>
-    </p>
+
 </div>
 <div>
-
-
-  <h2>Text to Edit</h2>
 
     <div class="container-fluid">
           <div class="row">
@@ -54,7 +48,7 @@
                   <p>Some text that describes me lorem ipsum ipsum lorem.</p>
                   <p>
                     <p>
-                       <a href="" download="download_file.jsonld">
+                       <a href="" id="extracted_data" download="download_file.json">
                             <button class="button download_extracted_data" disabled type="button">Download</button>
                         </a>
                     <p>
@@ -72,7 +66,7 @@
                   <p>
 
                       <button class="button download_annnotated_data" disabled onclick=call_with_link("./annotation_graph")>Analyse</button>
-                        <a href="" download="download_file.json">
+                        <a href="" id="annotated_data" download="download_file.json">
                             <button class="button download_annnotated_data" disabled type="button">Download</button>
                         </a>
                     <p>
@@ -89,7 +83,8 @@
 
                   <p>
                       <button  class="button download_analysed_data" disabled onclick=call_with_link("./context_graph")>Analyse</button>
-                      <a href="" download="download_file.jsonld">
+
+                      <a href="" id="analysed_data" download="download_file.jsonld">
                             <button class="button download_analysed_data" disabled type="button">Download</button>
                     </a>
                     <p>
@@ -104,10 +99,18 @@
 <script>
 
 
+
 $('#document_table').on('click', 'tbody tr', function(event) {
-    console.log("hi");
+
   $(this).addClass('highlight').siblings().removeClass('highlight');
+
+    $("#extracted_data").attr("href", "/analysis/download_extracted_data/?id=" + this.id)
+    $("#annotated_data").attr("href", "/analysis/download_annotatd_data/?id="  + this.id)
+    $("#analysed_data").attr("href", "/analysis/download_analysed_data/?id="  + this.id)
 });
+
+
+
 
 function call_with_link(site) {
     var _id = ''
@@ -115,12 +118,16 @@ function call_with_link(site) {
     $(".highlight td:first-child").each(function() {
         var _id = $(this).text();
          window.location.href = site + "\/?id=" + _id;
-        });
+    });
 
 }
 
 $('tbody tr').on('click', function(event) {
     var text = $(this).text();
+
+
+
+
     if (text.includes("extracted") ){
         $(".download_extracted_data").prop('disabled', false);
         $(".download_annnotated_data").prop('disabled', true);
@@ -137,6 +144,10 @@ $('tbody tr').on('click', function(event) {
         $(".download_annnotated_data").prop('disabled', false);
         $(".download_analysed_data").prop('disabled', false);
     }
+
+       // Get the relevant attributes.
+    //console.log(text.val());
+    //$("a:analysed_data").attr("href", site + "\/?id=" + text.val());
 });
 
     function execute_task(site) {

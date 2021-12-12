@@ -22,8 +22,8 @@
 
                    {% for state in status %}
                     <tr class="clickable-row">
-                        <td>{{ "".join(state.keys()) }}</td>
-                        <td>{{ "".join(state.values()) }}</td>
+                        <td id="{{ state["id"] }}">{{ state["name"] }}</td>
+                        <td>{{ state["state"]}}</td>
                     </tr>
                     {% endfor %}
 
@@ -94,7 +94,7 @@
                   <p>Some text that describes me lorem ipsum ipsum lorem.</p>
                   <p>
                     <p>
-                      <button class="button delete" disabled onclick=execute_task("./context_graph")>Delete</button>
+                      <button class="button delete" disabled onclick=delete_document()>Delete</button>
                     <p>
                   </p>
                 </div>
@@ -136,7 +136,7 @@ $('tbody tr').on('click', function(event) {
     function execute_task(site) {
         // get the ide of the selected document
         $(".highlight td:first-child").each(function() {
-            var _id = $(this).text();
+            var _id = this.id;
         // Call the server
         $.ajax({
             type: "POST",
@@ -147,11 +147,24 @@ $('tbody tr').on('click', function(event) {
         });
     }
 
+    function delete_document(){
+            // get the ide of the selected document
+        $(".highlight td:first-child").each(function() {
+            var _id = this.id;
+        // Call the server to delete it
+        $.ajax({
+            type: "PUT",
+            url: "./delete_document/?id=" + _id,
+            contentType: "application/json",
+            data: JSON.stringify({"document_id": _id})
+        });
+        });
+    }
     function call_with_link(site) {
         var _id = ''
         // Get the relevant attributes. 
         $(".highlight td:first-child").each(function() {
-            var _id = $(this).text();
+            var _id = this.id;
              window.location.href = site + "\/?id=" + _id;
             });
 

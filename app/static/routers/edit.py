@@ -65,12 +65,22 @@ def _get_status() -> Dict:
     res = []
     for file in uploaded_files:
         state = 'uploaded'
-        if file in extracted_files:
+        if file.id in [_.id for _ in extracted_files]:
             state = 'extracted'
-            if file in annotated_files:
+            if file.id in [_.id for _ in annotated_files]:
                 state = 'annotated'
-        res.append({file: state})
+
+        # Creata a dict of List that can be handled by jinja
+        data = file.dict()
+        data.update({'state': state})
+        res.append(data)
     return res
+
+@router.put("/delete_document")
+def delete_document(request: Request, id: str):
+    """ Deletes the document from the database. """
+    db.del_file_by_id(id, "all")
+
 
 @router.get("/start_page")
 def get_start_page(request: Request):
