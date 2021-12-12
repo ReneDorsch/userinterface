@@ -1,0 +1,152 @@
+{% extends 'full_base.html' %}
+
+{% block header_fullbase  %}
+
+{% endblock %}
+
+{% block content_fullbase %}
+
+<h2 xmlns="http://www.w3.org/1999/html"> Upload your files and choose how you want to process them. </h2>
+
+
+<div class="row">
+    <div class="col">
+        <div id="dropzone" class="dropzone" style="margin: auto;">
+            <p >Drop your PDF-Documents here.</p>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+            <p> Please choose a execution mode. </p>
+              <fieldset id="mode_field">
+               <div>
+                    <input class="mode" type="radio" name="mode" id="fast" value="fast" checked />
+                    <label for="fast">Fast (Automatic)</label>
+                </div>
+                <div>
+                    <input class="mode" type="radio" name="mode" id="slow" value="slow"/>
+                    <label for="slow">Higher Quality (Semi-Automatic)</label>
+                </div>
+              </fieldset>
+
+      </div>
+
+      <div class="modal-footer">
+
+          <button type="button"  class="btn btn-primary" onclick=call("../edit/start_page")>Start Process</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+      </div>
+    </div>
+  </div>
+
+
+
+{% endblock %}
+
+
+{% block javascript_fullbase %}
+
+function call(site) {
+
+    // Get the relevant attributes.
+    console.log(document_id);
+    var option_mode = $('.mode:checked');
+
+
+    // Call the backend and go to the next site.
+
+    $.post({
+        url: '../enrichment/options_result',
+        contentType: 'application/json',
+        data: JSON.stringify({
+                                'id': document_id,
+                                "mode": option_mode.text()
+                            }),
+        dataType: 'json',
+        success: function (data){
+            console.log(site + data['url'])
+            window.location.href = data['url'];
+            }
+    });
+}
+$(document).ready(function(){
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+
+
+
+     $("#dropzone").on('dragover', function(event){
+         event.preventDefault();
+         $("#dropzone").addClass("dragover");
+     });
+
+     $("#dropzone").on('dragleave', function(event){
+         event.preventDefault();
+         $("#dropzone").removeClass("dragover");
+     });
+
+
+    $("#dropzone").on('drop', function(event){
+        // This function uploads a PDF to the server that was dropped over an
+        // element of the class dropzone
+
+        // Deactive default behaviour
+        event.preventDefault();
+        $("#dropzone").removeClass("dragover");
+
+
+        var files = event.originalEvent.dataTransfer.files
+        var formData = new FormData();
+
+
+        // Create a multi-part-FormData Object
+        // so more as one item could be uploaded
+        for(x = 0; x < files.length; x = x + 1){
+            formData.append('file[]', files[x]);
+        };
+
+        // Call the server asynchronlly
+        $.ajax({
+            type: 'POST',
+            url: '/enrichment/upload_file',
+            data : formData,
+            processData: false,
+            contentType: false,
+            success: function(res){
+                console.log(res);
+                document_id = res['document_id'];
+             }
+        });
+
+         $("#exampleModal").modal('toggle');
+
+
+
+    });
+
+});
+{% endblock %}

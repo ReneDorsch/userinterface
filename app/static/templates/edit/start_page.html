@@ -1,0 +1,170 @@
+{% extends 'full_base.html' %}
+
+{% block header_fullbase %}
+
+{% endblock %}
+
+{% block content_fullbase %}
+
+<div>
+<div class="section">
+    <h1>Edit Document {{ name }}</h1>
+</div>
+  <div style="height: 10px;"></div>
+            <table id="document_table" class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Document ID</th>
+                  <th scope="col">Enrichment State</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                   {% for state in status %}
+                    <tr class="clickable-row">
+                        <td>{{ "".join(state.keys()) }}</td>
+                        <td>{{ "".join(state.values()) }}</td>
+                    </tr>
+                    {% endfor %}
+
+
+              </tbody>
+            </table>
+
+
+
+        <button onClick="window.location.href=window.location.href">Refresh Page</button>
+
+</div>
+<div>
+
+
+  <h2>Text to Edit</h2>
+
+    <div class="container-fluid">
+          <div class="row">
+              <div class="col-sm">
+              <div class="card">
+                <div class="container">
+                  <h2>Extract Data</h2>
+                  <p>Some text that describes me lorem ipsum ipsum lorem.</p>
+
+                  <p>
+
+                      <button class="button edit" disabled onclick=execute_task("../enrichment/extraction_task")>Start extraction process</button>
+
+                    <p>
+                </div>
+               </div>
+
+            </div>
+            <div class="col-sm">
+              <div class="card">
+                <div class="container">
+                  <h2>Edit extracted data</h2>
+                  <p>Some text that describes me lorem ipsum ipsum lorem.</p>
+
+                  <p>
+
+                      <button class="button extraction" disabled onclick=execute_task("../enrichment/annotation_task")>Start next enrichment process</button>
+                      <button class="button extraction" disabled onclick=call_with_link("./edit_document")>Edit data</button>
+
+                    <p>
+                </div>
+               </div>
+
+            </div>
+
+            <div class="col-sm">
+              <div class="card">
+                <div class="container">
+                  <h2> Annotated data</h2>
+                  <p>Some text that describes me lorem ipsum ipsum lorem.</p>
+
+                  <p>
+                      <button  class="button annotation" disabled onclick=execute_task("../enrichment/analysis_task")>Start next enrichment process</button>
+                      <button class="button annotation"  disabled onclick=call_with_link("./edit_annotations")>Edit data</button>
+                    <p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm">
+              <div class="card">
+                <div class="container">
+                  <h2>Delete Data</h2>
+                  <p>Some text that describes me lorem ipsum ipsum lorem.</p>
+                  <p>
+                    <p>
+                      <button class="button delete" disabled onclick=execute_task("./context_graph")>Delete</button>
+                    <p>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+</div>
+<script>
+
+
+$('#document_table').on('click', 'tbody tr', function(event) {
+    console.log("hi");
+  $(this).addClass('highlight').siblings().removeClass('highlight');
+});
+
+$('tbody tr').on('click', function(event) {
+    var text = $(this).text();
+    if (text.includes("uploaded") ){
+        $(".edit").prop('disabled', false);
+        $(".extraction").prop('disabled', true);
+        $(".annotation").prop('disabled', true);
+        $(".delete").prop('disabled', false);
+    }
+    if (text.includes("extracted") ){
+        $(".edit").prop('disabled', false);
+        $(".extraction").prop('disabled', false);
+        $(".annotation").prop('disabled', true);
+        $(".delete").prop('disabled', false);
+    }
+    if (text.includes("annotated") ){
+        $(".edit").prop('disabled', false);
+        $(".extraction").prop('disabled', false);
+        $(".annotation").prop('disabled', false);
+        $(".delete").prop('disabled', false);
+    }
+});
+
+    function execute_task(site) {
+        // get the ide of the selected document
+        $(".highlight td:first-child").each(function() {
+            var _id = $(this).text();
+        // Call the server
+        $.ajax({
+            type: "POST",
+            url: site,
+            contentType: "application/json",
+            data: JSON.stringify({"document_id": _id})
+        });
+        });
+    }
+
+    function call_with_link(site) {
+        var _id = ''
+        // Get the relevant attributes. 
+        $(".highlight td:first-child").each(function() {
+            var _id = $(this).text();
+             window.location.href = site + "\/?id=" + _id;
+            });
+
+    }
+
+        
+
+    </script>
+{% endblock %}
+
+
+{% block javascript_fullbase %}
+    
+{% endblock %}

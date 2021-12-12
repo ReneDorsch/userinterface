@@ -147,6 +147,9 @@ class DataBase:
         for idx in self._indexs.values():
             idx.save_index()
 
-
+    def get_all_index_data(self, index: str):
+        """ Returns a list of all indexed files from a index. """
+        if index in self._indexs:
+            return self._indexs[index].data.keys()
 
 db = DataBase()

@@ -9,30 +9,28 @@
 
 <div class="section">
     <div>
-    <button onclick=call_with_link('./edit_document') style="width: 20%;"> Go Back</button>
-    <button onclick=prev('./edit_images') style="width: 20%;"> Previous</button>
-    <button onclick=update('./update_document') style="width: 20%;"> Save as Table</button>
-    <button onclick=next('./edit_images') style="width: 20%;"> Next</button>
+        <button onclick=prev('./edit_images') style="width: 20%;"> Previous</button>
+        <button onclick=call_with_link('./edit_document') style="width: 20%;"> Go back</button>
+        <button onclick=update('./update_document') style="width: 20%;"> Save as table</button>
+        <button onclick=next('./edit_images') style="width: 20%;"> Next</button>
     </div>
-    <h1>Image-Edit</h1>
-    <p>Some text about who we are and what we do.</p>
-    <p>Resize the browser window to see that this page is responsive by the way.</p>
-  </div>
-  
-  div class="container">
-  <div class="row">
-      <div class="column" style="width:50%">
-          <div class="card">
-              <div class="pdf_viewer">
-                  <img src="{{image_base_64}}" width="100%" height="auto">
-              </div>
-          </div>
-      </div>
-      <div>
-          <div class="column"  style="width:50%">
-              <div class="card">
 
-                    <table id="image_table">
+  </div>
+  <div style="height: 10px;"></div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md">
+            <div class="pdf_viewer">
+                <img src="{{image_base_64}}" width="100%" height="auto">
+            </div>
+        </div>
+      <div>
+        <div class="col-md">
+                <div class="row">
+                    <div class="col-md">
+
+
+                    <table id="image_table" class="table">
                         <thead>
                             <th class="non_editable">Tableheader</th>
                             <th contenteditable>Company</th>
@@ -53,16 +51,24 @@
                         </tr>
                     </table>
 
-                </div>
-                <div>
 
-                    <button onclick=new_row() style="width: 25%"> New Row</button>
-                    <button onclick=new_column('./update_document') style="width: 25%"> New Column</button>
-                    <button onclick=delete_row('./edit_document') style="width: 25%;"> Delete last Row</button>
-                    <button onclick=delete_column('./edit_document') style="width: 25%;"> Delete last Column</button>
+              <div class="btn-group d-flex w-100" role="group" aria-label="...">
+                    <button type="button" onclick=new_row() class="w-100" > New Row</button>
+                    <button type="button" onclick=new_column('./update_document') class="w-100" > New Column</button>
+                    <button type="button" onclick=delete_row('./edit_document') class="w-100" > Delete last Row</button>
+                    <button type="button" onclick=delete_column('./edit_document') class="w-100" > Delete last Column</button>
+                        </div>
+                    </div>
+                    <div class="w-100"></div>
+                    <div class="row">
+
+
+
+
+                    </div>
                 </div>
-           </div>
-      </div>
+        </div>
+    </div>
       <p id="hiddenid" hidden>{{id}}</p>
 <p id="hiddenpage_number" hidden>{{num}}</p>
 <p id="type" hidden>{{type}}</p>

@@ -14,28 +14,25 @@
     <button onclick=update('./update_document') style="width: 20%;"> Save</button>
     <button onclick="edit_document" style="width: 20%;"> Next</button>
     </div>
-    <h1>Text-Edit</h1>
-    <p>Some text about who we are and what we do.</p>
-    <p>Resize the browser window to see that this page is responsive by the way.</p>
   </div>
-  
-<div class="container">
+    <div style="height: 10px;"></div>
+<div class="container-fluid">
     <div class="row">
         <div class="column" style="width:50%">
-            <div class="card">
+
                 <div class="pdf_viewer">
-                    <embed src="{{pdf_file}}" width="100%" height="600px" type="application/pdf">
+                    <embed src="{{pdf_file}}" width="100%" height="700px" type="application/pdf">
                 </div>
-            </div>
+
         </div>
         <div class="column"  style="width:50%">
-            <div class="card">
+
                 <div class="text_field">
-                    <textarea id="text"  style="width:100%; height:600px">{{text}}
+                    <textarea id="text"  style="width:100%; height:700px">{{text}}
                       
                     </textarea>
                 </div>
-            </div>
+
         </div>
 <p id="hiddenid" hidden>{{id}}</p>
 <p id="hiddenpage_number" hidden>{{num}}</p>

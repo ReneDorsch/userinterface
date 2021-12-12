@@ -5,18 +5,31 @@ from database.database import db
 from app.internal.tasks.document_analysis import create_annotation_graph, create_context_graph, get_download_link
 from app.internal.internal_datamodels import Document
 from typing import List
-
 templates = Jinja2Templates(directory="static/templates")
+analysis_templates = Jinja2Templates(directory="static/templates/analysis")
 router = APIRouter(
     prefix="/analysis",
     responses={404: {"description": "Not found"}},
 )
 
 
-@router.get("/start_analysis", response_class=HTMLResponse)
+@router.get("/start_page", response_class=HTMLResponse)
 async def read_item(request: Request):
-    docs: List[Document] = [Document(**_) for _ in db.get_all_files('analyse', cached=False)]
-    return templates.TemplateResponse("analysis.html", {"request": request, "id": id, "documents": docs})
+    extracted_files = db.get_all_index_data('extract')
+    annotated_files = db.get_all_index_data('annotate')
+    analysed_files = db.get_all_index_data('analyse')
+    res = []
+    for file in extracted_files:
+        state = 'extracted'
+        if file in annotated_files:
+            state = 'annotated'
+            if file in analysed_files:
+                state = 'analysed'
+        res.append({file: state})
+    return analysis_templates.TemplateResponse("start_analysis.html",
+                                               {"request": request,
+                                                "status": res}
+                                               )
 
 
 @router.get("/annotation_graph", response_class=HTMLResponse)
@@ -25,7 +38,7 @@ async def read_item(request: Request, id: str):
     doc = Document(**file)
 
     graph = create_annotation_graph(doc)
-    return templates.TemplateResponse("annotation_graph.html",
+    return analysis_templates.TemplateResponse("annotation_graph.html",
                                       {"request": request, "id": id, "graph": str(graph), "active": True})
 
 
@@ -35,7 +48,7 @@ async def read_item(request: Request, id: str):
     doc = Document(**file)
 
     graph = create_context_graph(doc)
-    return templates.TemplateResponse("context_graph.html",
+    return analysis_templates.TemplateResponse("context_graph.html",
                                       {"request": request, "id": id, "graph": graph, "active": True})
 
 

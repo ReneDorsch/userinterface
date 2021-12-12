@@ -1,11 +1,11 @@
 
-{% extends 'enrichment_base.html' %}
+{% extends 'full_base.html' %}
 
-{% block header_enrichmentbase %}
+{% block header_fullbase %}
 
 {% endblock %}
 
-{% block content_enrichmentbase %}
+{% block content_fullbase %}
 
 <div class="section">
 <div>
@@ -85,7 +85,7 @@
 
 {% endblock %}
 
-{% block javascript_enrichmentbase %}
+{% block javascript_fullbase %}
     var document_id = "{{id}}";
     function remove(){
         var id = $("#id_concept").text();

@@ -9,9 +9,8 @@ from app.internal.tasks import document_enrichment, document_annotation
 
 app = FastAPI()
 templates = Jinja2Templates(directory="static/templates")
-
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 app.include_router(advanced.router)
 app.include_router(analysis.router)
@@ -40,7 +39,7 @@ async def read_item(request: Request, id: str):
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", reload=False)
+    uvicorn.run("main:app", reload=True)
 
 
 

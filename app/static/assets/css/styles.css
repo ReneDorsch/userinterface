@@ -2,10 +2,7 @@ h1{
     color: rgb(2, 1, 34);
     text-align: left;
 }
-body {
-    font-family: "Lato", sans-serif;
-    background-color: rgb(232, 237, 247);
-}
+
 p{
     font-size: 20px;
 }
@@ -13,6 +10,38 @@ p{
 #main {
     transition: margin-left .5s;
     padding: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.row {
+  display: flex;
+}
+
+/* Create two equal columns that sits next to each other */
+
+body {
+    font-family: "Lato", sans-serif;
+    background-color: aliceblue;
+}
+
+.splitrow {
+  display: flex;
+    box-sizing: border-box;
+}
+
+.highlight {
+  background-color: #a6c5e3;
+}
+
+
+.twocol {
+  flex: 50%;
+  padding: 10px;
+  height: 300px;
+    box-sizing: border-box;
 }
 
 .dropzone {
@@ -23,10 +52,11 @@ p{
     line-height: 600px;
     text-align: center;
     text-decoration-color: #2d4864;
+
 }
 
 .dropzone.dragover {
-    border-color: #2d4864;
+    border-color: #2dddddd;
     color: #2d4864;
 }
 
@@ -178,7 +208,7 @@ table, th, td {
 }
 
 button {
-    width: auto;
+    width: 100%;
     font-size: 20px;
 }
 .column {
@@ -270,3 +300,9 @@ button {
     opacity: 0.5;
     text-decoration: none;
   }
+
+  @media (min-width: 1200px) {
+    .container{
+        max-width: 1200px;
+    }
+}

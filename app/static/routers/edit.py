@@ -6,7 +6,7 @@ from app.internal.internal_datamodels import Document, OptionSelection, Knowledg
 from pydantic import BaseModel, Field
 from typing import Dict, List
 from fastapi.encoders import jsonable_encoder
-
+edit_templates = Jinja2Templates(directory="static/templates/edit")
 templates = Jinja2Templates(directory="static/templates")
 router = APIRouter(
     prefix="/edit",
@@ -42,17 +42,47 @@ def table_as_html(table) -> str:
 
     def get_row(cell, type, editable: bool = True):
         return f"<{type} {'contenteditable'if editable else ''}> {cell} </{type}>\n"
+
+
     res = f"""<thead> 
                {"".join([get_row(_.text, "th") for _ in table.table_header.cells])}
-            </thead> \n"""
+            </thead> 
+             <tbody>"""
     for row in table.rows:
         res += "<tr>"
         res += "".join([get_row(_.text, "td") for _ in row.cells])
         res += "</tr>"
+
+    res += "</tbody>"
     return res
 
 
+def _get_status() -> Dict:
+    """ Gets all indexs states. """
+    uploaded_files = db.get_all_index_data('upload')
+    extracted_files = db.get_all_index_data('extract')
+    annotated_files = db.get_all_index_data('annotate')
+    res = []
+    for file in uploaded_files:
+        state = 'uploaded'
+        if file in extracted_files:
+            state = 'extracted'
+            if file in annotated_files:
+                state = 'annotated'
+        res.append({file: state})
+    return res
 
+@router.get("/start_page")
+def get_start_page(request: Request):
+    """ Returns the starting page to the edit. """
+    return edit_templates.TemplateResponse("start_page.html",
+                                      {"request": request,
+                                       "status": _get_status()})
+
+@router.get("/get_all_status")
+def get_status(request: Request) -> Dict:
+    """ Gets all indexs states and returns them to the page. """
+    return _get_status()
 
 @router.put("/annotation/annotation_merge")
 async def merge_annotations(document_id: str, data: AnnotationItem, background_tasks: BackgroundTasks):
@@ -78,8 +108,6 @@ async def remove_annotations(document_id: str, data: AnnotationItem, background_
         doc.remove_KObjs(data.data)
 
     background_tasks.add_task(update_file, doc)
-  #  file = db.get_file('annotate', document_id, False)
-  #  doc = Document(**file)
     kObjs = doc.get_knowledgeObjects()
 
 
@@ -151,7 +179,7 @@ async def read_item(request: Request, id: str):
         has_images = len(doc.images) > 0
         has_tables = len(doc.tables) > 0
         name = doc.file_name
-    return templates.TemplateResponse("edit_document.html",
+    return edit_templates.TemplateResponse("edit_document.html",
                                        {"request": request,
                                         "active": state,
                                         "has_images": has_images,
@@ -172,7 +200,7 @@ async def read_item(request: Request, id: str):
     file = db.get_file('extract', id)
     doc = Document(**file)
     path = doc.get_path_to_file()
-    return templates.TemplateResponse("edit_text.html",
+    return edit_templates.TemplateResponse("edit_text.html",
                                       {"request": request,
                                        "id": id,
                                        "title": "Item",
@@ -191,7 +219,7 @@ async def read_item(request: Request, id: str, num: int = 0):
     image = doc.get_image(num)
     image_base_64 = image.get_path_to_file()
 
-    return templates.TemplateResponse("edit_images.html",
+    return edit_templates.TemplateResponse("edit_images.html",
                                       {"request": request,
                                        "id": id,
                                        "title": "Item",
@@ -213,7 +241,7 @@ async def read_item(request: Request, id: str, num: int = 0):
     image_base_64 = table.get_path_to_file()
 
     table_html = table_as_html(table)
-    return templates.TemplateResponse("edit_table.html", {"request": request,
+    return edit_templates.TemplateResponse("edit_table.html", {"request": request,
                                                           "id": id,
                                                           "title": "Item",
                                                           "active": True,
@@ -238,7 +266,7 @@ async def read_item(request: Request, id: str, reload: str = ''):
     knowledgeObjects: List[KnowledgeObject] = doc.get_knowledgeObjects()
 
 
-    return templates.TemplateResponse("edit_annotations.html",
+    return edit_templates.TemplateResponse("edit_annotations.html",
                                        {"request": request,
                                         "id": id,
                                         "active": True,

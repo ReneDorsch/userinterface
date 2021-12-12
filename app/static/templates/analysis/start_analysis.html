@@ -1,0 +1,164 @@
+{% extends 'full_base.html' %}
+
+{% block header_fullbase %}
+
+{% endblock %}
+
+{% block content_fullbase %}
+
+<div>
+    <p>
+    <h2>File Selection</h2>
+    <p>Please select a file that you want to analyse </p>
+
+            <table id="document_table" class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Document ID</th>
+                  <th scope="col">Enrichment State</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                   {% for state in status %}
+                    <tr class="clickable-row">
+                        <td>{{ "".join(state.keys()) }}</td>
+                        <td>{{ "".join(state.values()) }}</td>
+                    </tr>
+                    {% endfor %}
+
+
+              </tbody>
+            </table>
+
+
+
+    <p> Refresh data
+        <button onClick="window.location.href=window.location.href">Refresh Page</button>
+    </p>
+</div>
+<div>
+
+
+  <h2>Text to Edit</h2>
+
+    <div class="container-fluid">
+          <div class="row">
+
+          <div class="col-sm">
+              <div class="card">
+                <div class="container">
+                  <h2>Extracted Data</h2>
+                  <p>Some text that describes me lorem ipsum ipsum lorem.</p>
+                  <p>
+                    <p>
+                       <a href="" download="download_file.jsonld">
+                            <button class="button download_extracted_data" disabled type="button">Download</button>
+                        </a>
+                    <p>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm">
+              <div class="card">
+                <div class="container">
+                  <h2>Annotated data</h2>
+                  <p>Some text that describes me lorem ipsum ipsum lorem.</p>
+
+                  <p>
+
+                      <button class="button download_annnotated_data" disabled onclick=call_with_link("./annotation_graph")>Analyse</button>
+                        <a href="" download="download_file.json">
+                            <button class="button download_annnotated_data" disabled type="button">Download</button>
+                        </a>
+                    <p>
+                </div>
+               </div>
+
+            </div>
+
+            <div class="col-sm">
+              <div class="card">
+                <div class="container">
+                  <h2> Analysed data</h2>
+                  <p>Some text that describes me lorem ipsum ipsum lorem.</p>
+
+                  <p>
+                      <button  class="button download_analysed_data" disabled onclick=call_with_link("./context_graph")>Analyse</button>
+                      <a href="" download="download_file.jsonld">
+                            <button class="button download_analysed_data" disabled type="button">Download</button>
+                    </a>
+                    <p>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+</div>
+<script>
+
+
+$('#document_table').on('click', 'tbody tr', function(event) {
+    console.log("hi");
+  $(this).addClass('highlight').siblings().removeClass('highlight');
+});
+
+function call_with_link(site) {
+    var _id = ''
+    // Get the relevant attributes.
+    $(".highlight td:first-child").each(function() {
+        var _id = $(this).text();
+         window.location.href = site + "\/?id=" + _id;
+        });
+
+}
+
+$('tbody tr').on('click', function(event) {
+    var text = $(this).text();
+    if (text.includes("extracted") ){
+        $(".download_extracted_data").prop('disabled', false);
+        $(".download_annnotated_data").prop('disabled', true);
+        $(".download_analysed_data").prop('disabled', true);
+
+    }
+    if (text.includes("annotated") ){
+        $(".download_extracted_data").prop('disabled', false);
+        $(".download_annnotated_data").prop('disabled', false);
+        $(".download_analysed_data").prop('disabled', true);
+    }
+    if (text.includes("analysed") ){
+        $(".download_extracted_data").prop('disabled', false);
+        $(".download_annnotated_data").prop('disabled', false);
+        $(".download_analysed_data").prop('disabled', false);
+    }
+});
+
+    function execute_task(site) {
+        // get the ide of the selected document
+        $(".highlight td:first-child").each(function() {
+            var _id = $(this).text();
+        // Call the server
+        $.ajax({
+            type: "POST",
+            url: site,
+            contentType: "application/json",
+            data: JSON.stringify({"document_id": _id})
+        });
+        });
+    }
+
+
+
+        
+
+    </script>
+{% endblock %}
+
+
+{% block javascript_fullbase %}
+    
+{% endblock %}
