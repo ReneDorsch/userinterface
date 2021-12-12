@@ -10,8 +10,8 @@
 <div class="section">
 <div>
     <p style="padding-bottom: 30px;">
-        <input type="button" onclick="location.href='../analysis/start_analysis'" value="Start Analysis" style="float: right;">
-        <input type="button" onclick="location.href='../enrichment/upload_files'" value="Edit Text Extraction" style="float: left;">
+        <input type="button" onclick=call('../enrichment/analysis_results') value="Start Analysis" style="float: right;">
+        <input type="button" onclick='../enrichment/edit_document' value="Edit Text Extraction" style="float: left;">
     </p>
 </div>
     <h1>Annotation-Edit</h1>
@@ -80,7 +80,7 @@
                 </div>
             </div>
         </div>
-
+<p id="hiddenid" hidden>{{id}}</p>
 </div>
 
 {% endblock %}
@@ -135,8 +135,8 @@ $("#annotation_table").html(data['template']);
             contentType: "application/json",
             data: JSON.stringify({"document_id": document_id,
                                     "data": {
-                                                "id1": id1,
-                                                "id2": id2
+                                                "id1": id_1,
+                                                "id2": id_2
                                             },
                                     }),
                 success: function(data){
@@ -162,6 +162,32 @@ $("#annotation_table").html(data['template']);
                 success: function(data){
                  $("#annotation_table").html(data['template']);
             }
+        });
+    }
+
+
+ function call(site) {
+
+        // Get the relevant attributes.
+        var document_id = $('#hiddenid');
+
+
+        // Call the backend and go to the next site.
+
+            $.post({
+                url: '../enrichment/analysis_results',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                                        'id': document_id.text(),
+                                        "mode": ''
+                                    }),
+                dataType: 'json',
+                success: function (data){
+                    console.log(data['url'])
+                    window.location.href = data['url'];
+
+            }
+
         });
     }
 

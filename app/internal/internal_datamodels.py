@@ -14,6 +14,7 @@ from io import BytesIO
 from app.config import PATH_TO_APP, PATH_TO_TMP
 from typing import Dict
 
+
 class OptionSelection(BaseModel):
     id: str
     mode: str
@@ -29,6 +30,7 @@ class Word(BaseModel):
     end_pos: int
     prev_word_id: int
 
+
 class WordAnalysis(BaseModel):
     id: int
     word: str = Field(alias='text')
@@ -39,8 +41,6 @@ class WordAnalysis(BaseModel):
     whitespace_after_word: int
     prev_word: Optional[int]
     knowledgeObject_reference: Optional[int]
-
-
 
 
 class Annotation(BaseModel):
@@ -91,7 +91,6 @@ class Paragraph(BaseModel):
     def __str__(self) -> str:
         res = [str(_) for _ in self.sentences]
         return " ".join(res)
-
 
 
 class Chapter(BaseModel):
@@ -182,8 +181,6 @@ class Text(BaseModel):
 
         self.chapters = chapters
 
-
-
     def extractSentences(self, text):
         sentences = []
 
@@ -236,7 +233,6 @@ class Table(BaseModel):
     table_header: Union[Row, Column] = Field(default=None)
     units: List[str] = Field(default=[])
 
-
     def update_table(self, data, doc) -> None:
         ''' Updates the table according to the given data. '''
 
@@ -244,6 +240,7 @@ class Table(BaseModel):
             """Checks if a text consits mostly of words"""
             return [_.isdecimal() for _ in text].count(True) / len(text) >= 0.5
 
+        data = data['table']
         _columns = [[] for i in range(len(data['0']))]
         rows = []
         table_header = None
@@ -254,17 +251,18 @@ class Table(BaseModel):
                 _row = []
                 # If TableHeader
                 if num_row == 0:
-                    table_header = Row(cells=[Cell(text=_, type="WORD", category="WORD") for _ in row[1:]])
+                    table_header = Row(cells=[Cell(text=_, type="WORD", category="WORD") for _ in row])
                 else:
-                    for num_col, _cell in enumerate(row[1:]):
+                    for num_col, _cell in enumerate(row):
                         _type = "NUM" if mostly_numbers(_cell) else "WORD"
                         cell = Cell(text=_cell, type=_type, category=_type)
-                        _columns[num_row].append(cell)
+                        _columns[num_col].append(cell)
                         _row.append(cell)
-                rows.append(Row(cells=_row))
+                    rows.append(Row(cells=_row))
         columns = []
         for _column in _columns:
-            columns.append(Column(cells=_column))
+            if len(_column) > 0:
+                columns.append(Column(cells=_column))
         self.table_header = table_header
         self.columns = columns
         self.rows = rows
@@ -287,7 +285,6 @@ class Table(BaseModel):
 
         return f"../static/tmp/imgs/{id(self)}.png"
 
-
     def __del__(self):
         path_to_file: str = os.path.join(os.getcwd(), f"static/tmp/imgs/1{id(self)}.png")
 
@@ -308,7 +305,8 @@ class Image(BaseModel):
             """Checks if a text consits mostly of words"""
             return [_.isdecimal() for _ in text].count(True) / len(text) >= 0.5
 
-        _columns = [[] for i in range(len(data['0']))]
+        table_size = max([len(_) for _ in data.values()])
+        _columns = [[] for i in range(table_size)]
         rows = []
         table_header = None
         for num_row, row in enumerate(data.values()):
@@ -323,19 +321,20 @@ class Image(BaseModel):
                     for num_col, _cell in enumerate(row[1:]):
                         _type = "NUM" if mostly_numbers(_cell) else "WORD"
                         cell = Cell(text=_cell, type=_type, category=_type)
-                        _columns[num_row].append(cell)
+                        _columns[num_col].append(cell)
                         _row.append(cell)
-                rows.append(Row(cells=_row))
+                    rows.append(Row(cells=_row))
         columns = []
         for _column in _columns:
-            columns.append(Column(cells=_column))
+            if len(_column) > 0:
+                columns.append(Column(cells=_column))
 
         table = Table(rows=rows,
-              columns=columns,
-              table_header=table_header,
-              base64_file=self.base64_file,
-              description=self.description
-              )
+                      columns=columns,
+                      table_header=table_header,
+                      base64_file=self.base64_file,
+                      description=self.description
+                      )
 
         doc.tables.append(table)
         doc.images.remove(self)
@@ -347,7 +346,6 @@ class Image(BaseModel):
         ''' Decodes the binary (base64) file. '''
         img_bytes: List[bytes] = urlsafe_b64decode(self.base64_file.encode('utf-8'))
         return img_bytes
-
 
     def get_path_to_file(self) -> str:
         ''' Returns the path to the file. '''
@@ -519,7 +517,7 @@ class Document(BaseModel):
         # Get the data for the new kObj
         id_ = max([_.id for _ in self.knowledgeObjects]) + 1
         category = data['category']
-        old_kObj = [_ for _  in self.knowledgeObjects if _.id == int(data['id'])][0]
+        old_kObj = [_ for _ in self.knowledgeObjects if _.id == int(data['id'])][0]
         labels = data['labels'].replace(" ", "").split(",")
         new_annotations = []
         for annotation in self.annotations:
@@ -547,7 +545,6 @@ class Document(BaseModel):
             if label in old_kObj.labels:
                 old_kObj.labels.remove(label)
 
-
     def remove_KObjs(self, data: Dict):
         """Removes one or several items from the dict"""
         ids = data['id'].replace(" ", "")
@@ -556,23 +553,18 @@ class Document(BaseModel):
 
         self.knowledgeObjects = [_ for _ in self.knowledgeObjects if _.id not in ids]
 
-
-
     def merge_kObjs(self, data: Dict):
         """ Merges two kObjs together. """
-        kObj1 = [_ for _  in self.knowledgeObjects if _.id == int(data['id1'])][0]
+        kObj1 = [_ for _ in self.knowledgeObjects if _.id == int(data['id1'])][0]
         kObj2 = [_ for _ in self.knowledgeObjects if _.id == int(data['id2'])][0]
         kObj1.annotation_ids.extend(kObj2.annotation_ids)
-        kObj1.labels.exted(kObj2.labels)
+        kObj1.labels.extend(kObj2.labels)
         self.knowledgeObjects.remove(kObj2)
-
 
     def update_kObj(self, id, data):
         """ Updates the kObj. """
-        kObj = [_ for _  in self.knowledgeObjects if _.id == int(id)][0]
+        kObj = [_ for _ in self.knowledgeObjects if _.id == int(id)][0]
         kObj.category = data['category']
-
-
 
     def get_knowledgeObjects(self) -> List[KnowledgeObject]:
         """ Returns a list of completly initailized kObjs. """
@@ -587,7 +579,7 @@ class Document(BaseModel):
                 for sentence in paragraph.sentences:
                     text += sentence.text + " "
                 text += "\n"
-            text += 80*"-" + "\n\n"
+            text += 80 * "-" + "\n\n"
 
         return text
 
@@ -602,7 +594,6 @@ class Document(BaseModel):
             return None
         id = id % len(self.tables)
         return self.tables[id]
-
 
     def to_json(self):
         return self.json()

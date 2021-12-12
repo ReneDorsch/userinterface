@@ -137,7 +137,7 @@ def start_annotation(id: str, document: Union[Document, None] = None, mapping_fu
     doc = Document(**data)
 
     doc = update_document(doc, file)
-    db.add_file(doc, 'annotate')
+    db.add_file(doc, 'annotate', True)
     db.save_indexes()
 
     return doc

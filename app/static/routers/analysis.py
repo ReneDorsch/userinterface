@@ -15,7 +15,7 @@ router = APIRouter(
 
 @router.get("/start_analysis", response_class=HTMLResponse)
 async def read_item(request: Request):
-    docs: List[Document] = [Document(**_) for _ in db.get_all_files('analyse')]
+    docs: List[Document] = [Document(**_) for _ in db.get_all_files('analyse', cached=False)]
     return templates.TemplateResponse("analysis.html", {"request": request, "id": id, "documents": docs})
 
 

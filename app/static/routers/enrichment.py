@@ -32,7 +32,7 @@ async def read_item(request: Request):
 
 @router.get("/options", response_class=HTMLResponse)
 async def read_item(request: Request):
-    docs: List[Document] = [Document(**_) for _ in db.get_all_files('upload')]
+    docs: List[Document] = [Document(**_) for _ in db.get_all_files('upload', False)]
     return templates.TemplateResponse("options.html",
                                       {"request": request, "id": id, "active": True, "step": 1,
                                        "documents": docs})
@@ -52,6 +52,12 @@ def option_result_interpretation(request: Request, option_selection: OptionSelec
 def option_result_interpretation(request: Request, option_selection: OptionSelection, background_tasks: BackgroundTasks):
     background_tasks.add_task(enrichment.start_annotation, id=option_selection.id)
     return {'url': f"../edit/edit_annotations/?id={option_selection.id}"}
+
+
+@router.post("/analysis_results")
+def option_result_interpretation(request: Request, option_selection: OptionSelection, background_tasks: BackgroundTasks):
+    background_tasks.add_task(enrichment.start_analysis, id=option_selection.id)
+    return {'url': f"../analysis/start_analysis/?id={option_selection.id}"}
 
 
 

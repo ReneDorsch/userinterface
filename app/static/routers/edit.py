@@ -25,18 +25,33 @@ class AnnotationItem(BaseModel):
 
 def kObjs_as_html(kObjs: List[KnowledgeObject]) -> str:
     res = """<thead>
-    <th> ID </th>
-    <th> Category </th>
-    <th> Labels </th>
-    </thead> \n"""
+                <th> ID </th>
+                <th> Category </th>
+                <th> Labels </th>
+            </thead> \n"""
     for kObj in kObjs:
         res += f"""<tr>
-        <td>{kObj.id} </td>
-        <td>{kObj.category} </td>
-        <td>{", ".join(kObj.labels)} </td>
-        </tr>\n
+                        <td>{kObj.id} </td>
+                        <td>{kObj.category} </td>
+                        <td>{", ".join(kObj.labels)} </td>
+                    </tr>\n
         """
     return res
+
+def table_as_html(table) -> str:
+
+    def get_row(cell, type, editable: bool = True):
+        return f"<{type} {'contenteditable'if editable else ''}> {cell} </{type}>\n"
+    res = f"""<thead> 
+               {"".join([get_row(_.text, "th") for _ in table.table_header.cells])}
+            </thead> \n"""
+    for row in table.rows:
+        res += "<tr>"
+        res += "".join([get_row(_.text, "td") for _ in row.cells])
+        res += "</tr>"
+    return res
+
+
 
 
 @router.put("/annotation/annotation_merge")
@@ -104,7 +119,7 @@ async def change_category_annotations(document_id: str, data: AnnotationItem, ba
 
 @router.put("/update_document", response_model=Item)
 async def update_data(itemid: str, item: Item):
-    file = db.get_file('extract', itemid)
+    file = db.get_file('extract', itemid, False)
     if file is not None:
         doc = Document(**file)
         if item.num.isnumeric():
@@ -120,7 +135,7 @@ async def update_data(itemid: str, item: Item):
         elif item.type == "text":
             doc.text.update_text(item.data['text'], doc)
     db.update_file(doc)
-    db.get_file('extract', itemid, False)
+    #db.get_file('extract', itemid, False)
     return jsonable_encoder(item)
 
 
@@ -153,7 +168,6 @@ async def read_item(request: Request, id: str):
 
 @router.get("/edit_text", response_class=HTMLResponse)
 async def read_item(request: Request, id: str):
-    #id = "9b0594fb-c54e-444f-b032-1ffa7b017ad2"
 
     file = db.get_file('extract', id)
     doc = Document(**file)
@@ -172,7 +186,7 @@ async def read_item(request: Request, id: str):
 @router.get("/edit_images", response_class=HTMLResponse)
 async def read_item(request: Request, id: str, num: int = 0):
 
-    file = db.get_file('extract', id)
+    file = db.get_file('extract', id, False)
     doc = Document(**file)
     image = doc.get_image(num)
     image_base_64 = image.get_path_to_file()
@@ -190,41 +204,23 @@ async def read_item(request: Request, id: str, num: int = 0):
 
 @router.get("/edit_tables", response_class=HTMLResponse)
 async def read_item(request: Request, id: str, num: int = 0):
-   # id = "9b0594fb-c54e-444f-b032-1ffa7b017ad2"
-   # i = 1
-    file = db.get_file('extract', id)
+    file = db.get_file('extract', id, False)
     doc = Document(**file)
-    image = doc.get_table(num)
+    table = doc.get_table(num)
 
-    image_base_64 = image.get_path_to_file()
+    num = abs(num) % len(doc.tables)
 
-    table_html = """
-                    
-                        <thead>
-                            <th>Company</th>
-                            <th>Contact</th>
-                            <th>Country</th>
-                        </thead>
-                        <tr>
-                            <td>Alfreds Futterkiste</td>
-                            <td>Maria Anders</td>
-                            <td>Germany</td>
-                        </tr>
-                        <tr>
-                            <td>Centro comercial Moctezuma</td>
-                            <td>Francisco Chang</td>
-                            <td>Mexico</td>
-                        </tr>
-                    
-                """
+    image_base_64 = table.get_path_to_file()
+
+    table_html = table_as_html(table)
     return templates.TemplateResponse("edit_table.html", {"request": request,
                                                           "id": id,
                                                           "title": "Item",
                                                           "active": True,
                                                           "image_base_64": image_base_64,
                                                           "table_html": table_html,
-                                                          "rows": 2,
-                                                          "columns": 2,
+                                                          "rows": len(table.rows),
+                                                          "columns": len(table.rows[0].cells) - 1,
                                                           "num": num,
                                                           "type": "table",
                                                           "step": 2})
@@ -232,10 +228,9 @@ async def read_item(request: Request, id: str, num: int = 0):
 
 @router.get("/edit_annotations", response_class=HTMLResponse)
 async def read_item(request: Request, id: str, reload: str = ''):
-    if reload != '':
-        file = db.get_file('annotate', id, False)
-    else:
-        file = db.get_file('annotate', id)
+
+    file = db.get_file('annotate', id, False)
+
 
 
     doc = Document(**file)

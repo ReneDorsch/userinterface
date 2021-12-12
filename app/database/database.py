@@ -96,7 +96,7 @@ class DataBase:
             return self._get_all_files(index)
 
     @lru_cache()
-    def get_all_files(self, index: str) -> List[Document]:
+    def _get_cached_all_files(self, index: str) -> List[Document]:
         return self._get_all_files(index)
 
     def _get_all_files(self, index: str) -> List[Document]:

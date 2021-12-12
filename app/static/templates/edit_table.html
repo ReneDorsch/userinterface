@@ -104,7 +104,7 @@
 
     function new_row() {
         rows += 1;
-        var table_data = '<tr> <td class="non_editable"> Datarow ' + rows + '</td>';
+        var table_data = '<tr> <td contenteditable> Datarow ' + rows + '</td>';
         for (let i = 0; i < columns; i++){
             table_data += '<td contenteditable>Alfreds Futterkiste</td>';
         }
